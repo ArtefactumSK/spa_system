@@ -196,6 +196,22 @@ function spa_icon($name, $class = 'spa-icon') {
     return '<img src="' . esc_url($url) . '" class="' . esc_attr($class) . '" alt="">';
 }
 
+/*IKONA SVG - napr. echo get_spa_svg_icon(39);*/ 
+function get_spa_svg_icon($spasvgsize = 39) {
+    $sizesvg = intval($spasvgsize);
+
+    $spa_svg = <<<SVG
+<svg class="spa-icon" width="{$sizesvg}" height="{$sizesvg}" viewBox="0 0 {$sizesvg} 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style="vertical-align: middle; display: inline-block;">
+    <path d="M36.29,0C-3.91,29.7.49,65.3,32.79,69.8-1.91,69-20.51,38.3,36.29,0Z" fill="var(--theme-palette-color-1, #FF1439)"></path>
+    <path d="M16.99,60.2c2.5,1.8,5.1,1.8,5.6-.2s-1.1-5.1-3.7-7-5.1-1.8-5.6.2,1.1,5.1,3.7,7Z" fill="var(--theme-palette-color-1, #FF1439)"></path>
+    <path d="M16.49,92.4c40.2-29.7,35.8-65.3,3.5-69.8,34.7.8,53.3,31.5-3.5,69.8Z" fill="var(--theme-palette-color-3, #ff1439)"></path>
+    <path d="M48.39,30.5c2.6,1.9,5.1,1.8,5.6-.2s-1.1-5.1-3.7-7-5.1-1.8-5.6.2,1.1,5.1,3.7,7Z" fill="var(--theme-palette-color-3, #ff1439)"></path>
+</svg>
+SVG;
+
+    return $spa_svg;
+}
+
 /* ==========================
    GRAVITY FORMS - Remove nag
    ========================== */
@@ -263,12 +279,12 @@ if (defined('WP_DEBUG') && WP_DEBUG && current_user_can('administrator')) {
 add_action('wp_dashboard_setup', function() {
     wp_add_dashboard_widget(
         'spa_system_status',
-        '<svg class="spa-icon" width="39" height="39" viewBox="12 12 36 76" style="vertical-align: bottom;display: inline-block;"><path d="M36.29,0C-3.91,29.7.49,65.3,32.79,69.8-1.91,69-20.51,38.3,36.29,0Z" fill="var(--theme-palette-color-1, #FF1439)"></path><path d="M16.99,60.2c2.5,1.8,5.1,1.8,5.6-.2s-1.1-5.1-3.7-7-5.1-1.8-5.6.2,1.1,5.1,3.7,7Z" fill="var(--theme-palette-color-1, #FF1439)"></path><path d="M16.49,92.4c40.2-29.7,35.8-65.3,3.5-69.8,34.7.8,53.3,31.5-3.5,69.8Z" fill="var(--theme-palette-color-3, #ff1439)"></path><path d="M48.39,30.5c2.6,1.9,5.1,1.8,5.6-.2s-1.1-5.1-3.7-7-5.1-1.8-5.6.2,1.1,5.1,3.7,7Z" fill="var(--theme-palette-color-3, #ff1439)"></path></svg> Samuel Piasecký ACADEMY - Stav systému',
+        get_spa_svg_icon(39).' Samuel Piasecký ACADEMY - Stav systému',
         function() {
             ?>
             <div style="padding: 12px;">
                 <p><strong>Verzia:</strong> <?php echo SPA_VERSION; ?><br>
-                <strong>Načítané moduly:</strong> 
+                <strong>Načítané moduly SPA:</strong> 
                     <?php 
                     $loaded = array_filter(glob(SPA_INCLUDES . '*.php'));
                     echo count($loaded); 
@@ -279,10 +295,13 @@ add_action('wp_dashboard_setup', function() {
                 
                 <h4>Rýchle linky:</h4>
                 <ul>
-                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_group'); ?>">📋 Skupiny tréningov</a></li>
-                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_hall_block'); ?>">📅 Obsadenosť hál</a></li>
-                    <li><a href="<?php echo admin_url('widgets.php'); ?>">📢 Bannery (Widgety)</a></li>
-                    <li><a href="<?php echo admin_url('admin.php?page=gf_edit_forms'); ?>">📝 Formuláre</a></li>
+                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_group'); ?>">🤸 Programy SPA</a></li>
+                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_registration'); ?>">📋 Registrácie SPA</a></li>
+                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_hall_block'); ?>">📅 Udalosti SPA</a></li>
+                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_attendance'); ?>">✅ Dochádzka</a></li>
+                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_payment'); ?>">💳 Prehľad platieb</a></li>                    
+                    <!-- <li><a href="<?php echo admin_url('widgets.php'); ?>">📢 Bannery (Widgety)</a></li> -->
+                    <!-- <li><a href="<?php echo admin_url('admin.php?page=gf_edit_forms'); ?>">📝 Formuláre</a></li> -->
                 </ul>
                 
                 <hr>
