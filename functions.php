@@ -272,49 +272,151 @@ if (defined('WP_DEBUG') && WP_DEBUG && current_user_can('administrator')) {
     });
 }
 
-/* ==========================
-   ADMIN DASHBOARD WIDGET
-   ========================== */
+/**
+ * SPA Dashboard Widget - Upravený
+ */
 
-add_action('wp_dashboard_setup', function() {
+// Odstráň starý widget (ak existuje)
+add_action('wp_dashboard_setup', 'spa_remove_old_dashboard_widget', 0);
+function spa_remove_old_dashboard_widget() {
+    remove_meta_box('spa_dashboard_widget', 'dashboard', 'normal');
+}
+
+// Pridaj nový upravený widget
+add_action('wp_dashboard_setup', 'spa_dashboard_widget_enhanced');
+
+function spa_dashboard_widget_enhanced() {
     wp_add_dashboard_widget(
-        'spa_system_status',
-        get_spa_svg_icon(39).' Samuel Piasecký ACADEMY - Stav systému',
-        function() {
-            ?>
-            <div style="padding: 12px;">
-                <p><strong>Verzia:</strong> <?php echo SPA_VERSION; ?><br>
-                <strong>Načítané moduly SPA:</strong> 
-                    <?php 
-                    $loaded = array_filter(glob(SPA_INCLUDES . '*.php'));
-                    echo count($loaded); 
-                    ?>
-                </p>
-                
-                <hr>
-                
-                <h4>Rýchle linky:</h4>
-                <ul>
-                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_group'); ?>">🤸 Programy SPA</a></li>
-                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_registration'); ?>">📋 Registrácie SPA</a></li>
-                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_hall_block'); ?>">📅 Udalosti SPA</a></li>
-                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_attendance'); ?>">✅ Dochádzka</a></li>
-                    <li><a href="<?php echo admin_url('edit.php?post_type=spa_payment'); ?>">💳 Prehľad platieb</a></li>                    
-                    <!-- <li><a href="<?php echo admin_url('widgets.php'); ?>">📢 Bannery (Widgety)</a></li> -->
-                    <!-- <li><a href="<?php echo admin_url('admin.php?page=gf_edit_forms'); ?>">📝 Formuláre</a></li> -->
-                </ul>
-                
-                <hr>
-                
-                <p style="background: rgb(196 181 174 / 39%); padding: 8px; border-radius: 4px; font-size: 12px;">
-                    <strong>💡 Potrebuješ pomoc?</strong> → <a href="mailto:support@artefactum.sk">support@artefactum.sk</a>
-                </p>
-            </div>
-            <?php
-        }
+        'spa_dashboard_enhanced',
+        get_spa_svg_icon(39).'Samuel Piasecký ACADEMY - Stav systému',
+        'spa_dashboard_widget_enhanced_display'
     );
-});
+}
 
+function spa_dashboard_widget_enhanced_display() {
+    global $wpdb;
+    
+    // Načítaj počty z DB
+    $stats = [
+        'programs' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_programs WHERE active = 1"),
+        'registrations' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_registrations WHERE status = 'active'"),
+        'places' => $wpdb->get_var("
+            SELECT COUNT(*) FROM {$wpdb->prefix}terms t
+            INNER JOIN {$wpdb->prefix}term_taxonomy tt ON t.term_id = tt.term_id
+            WHERE tt.taxonomy = 'spa_place'
+        "),
+        'events' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}posts WHERE post_type = 'spa_event' AND post_status = 'publish'"),
+        'attendance' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_attendance"),
+        'payments' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_payments WHERE status = 'paid'"),
+        'training_units' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_training_units"),
+        'trainers' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_trainers WHERE active = 1"),
+    ];
+    
+    ?>
+    <div style="padding: 15px;">
+        <p><strong>Verzia:</strong> 26.1.0</p>
+        <p><strong>Načítané moduly SPA:</strong> 15</p>
+        
+        <h3 style="margin-top: 20px; margin-bottom: 15px;">📊 Rýchle linky:</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            
+            <a href="<?php echo admin_url('edit.php?post_type=spa_group'); ?>" class="spa-stat-link">
+                <span class="dashicons dashicons-groups dashicons-universal-access-alt" style="color: var(--theme-palette-color-1);"></span>
+                <strong>Programy SPA</strong>
+                <span class="spa-count"><?php echo $stats['programs']; ?></span>
+            </a>
+            
+            <a href="<?php echo admin_url('edit.php?post_type=spa_registration'); ?>" class="spa-stat-link">
+                <span class="dashicons dashicons-clipboard" style="color: var(--theme-palette-color-1);"></span>
+                <strong>Registrácie SPA</strong>
+                <span class="spa-count"><?php echo $stats['registrations']; ?></span>
+            </a>
+            
+            <a href="<?php echo admin_url('edit-tags.php?taxonomy=spa_place'); ?>" class="spa-stat-link">
+                <span class="dashicons dashicons-location" style="color: var(--theme-palette-color-1);"></span>
+                <strong>Miesta SPA</strong>
+                <span class="spa-count"><?php echo $stats['places']; ?></span>
+            </a>
+            
+            <a href="<?php echo admin_url('edit.php?post_type=spa_event'); ?>" class="spa-stat-link">
+                <span class="dashicons dashicons-calendar" style="color: var(--theme-palette-color-1);"></span>
+                <strong>Udalosti SPA</strong>
+                <span class="spa-count"><?php echo $stats['events']; ?></span>
+            </a>
+            
+            <a href="<?php echo admin_url('admin.php?page=spa-attendance'); ?>" class="spa-stat-link">
+                <span class="dashicons dashicons-yes-alt" style="color: var(--theme-palette-color-1);"></span>
+                <strong>Dochádzka</strong>
+                <span class="spa-count"><?php echo $stats['attendance']; ?></span>
+            </a>
+            
+            <a href="<?php echo admin_url('admin.php?page=spa-payments'); ?>" class="spa-stat-link">
+                <span class="dashicons dashicons-money-alt" style="color: var(--theme-palette-color-1);"></span>
+                <strong>Prehľad platieb</strong>
+                <span class="spa-count"><?php echo $stats['payments']; ?></span>
+            </a>
+            
+        </div>
+        
+        <hr style="margin: 20px 0;">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+            <div>
+                <strong>🎯 Tréningové jednotky:</strong><br>
+                <span style="font-size: 24px; color: var(--theme-palette-color-3);"><?php echo $stats['training_units']; ?></span>
+            </div>
+            <div>
+                <strong>👟 Aktívni tréneri:</strong><br>
+                <span style="font-size: 24px; color: var(--theme-palette-color-3);"><?php echo $stats['trainers']; ?></span>
+            </div>
+        </div>
+        
+        <p style="margin-top: 20px; padding: 10px; background: #f0f6fc; border-left: 4px solid var(--theme-palette-color-1);">
+            💡 <strong>Potrebuješ pomoc?</strong> — 
+            <a href="mailto:support@artefactum.sk">support@artefactum.sk</a>
+        </p>
+    </div>
+    
+    <style>
+        .spa-stat-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f6f7f7;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #2c3338;
+            transition: all 0.2s;
+        }
+        .spa-stat-link:hover {
+            background: var(--theme-palette-color-1);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .spa-stat-link:hover .dashicons {
+            color: white !important;
+        }
+        .spa-stat-link strong {
+            flex: 1;
+        }
+        .spa-count {
+            font-weight: bold;
+            color: var(--theme-palette-color-3);
+            background: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .spa-stat-link:hover .spa-count {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+    </style>
+    <?php
+}
 // BLOKOVANIE EMAILOV NA TESTOVACEJ DOMÉNE
 add_filter('pre_wp_mail', 'spa_block_test_emails', 10, 2);
 function spa_block_test_emails($null, $atts) {
