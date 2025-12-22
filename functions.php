@@ -177,6 +177,9 @@ add_action('wp_enqueue_scripts', function() {
     
     // jQuery (potrebné pre AJAX)
     wp_enqueue_script('jquery');
+
+    if ($hook !== 'index.php') { return;}
+    wp_enqueue_style('spa-dashboard',get_stylesheet_directory_uri() . '/includes/admin_css/spa-dashboard.css',[],SPA_VERSION);
 });
 
 /* ==========================
@@ -317,7 +320,7 @@ function spa_dashboard_widget_enhanced_display() {
         <p><strong>Verzia:</strong> 26.1.0</p>
         <p><strong>Načítané moduly SPA:</strong> 15</p>
         
-        <h3 style="margin-top: 20px; margin-bottom: 15px;">🚀 Rýchle linky:</h3>
+        <h3 style="margin-top: 20px; margin-bottom: 15px;">🚀  Rýchle linky:</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             
@@ -333,7 +336,7 @@ function spa_dashboard_widget_enhanced_display() {
                 <span class="spa-count"><?php echo $stats['registrations']; ?></span>
             </a>
             
-            <a href="<?php echo admin_url('edit-tags.php?taxonomy=spa_place'); ?>" class="spa-stat-link">
+            <a href="<?php echo admin_url('edit.php?post_type=spa_place'); ?>" class="spa-stat-link">
                 <span class="dashicons dashicons-location" style="color: var(--theme-palette-color-1);"></span>
                 <strong>Miesta SPA</strong>
                 <span class="spa-count"><?php echo $stats['places']; ?></span>
@@ -362,12 +365,12 @@ function spa_dashboard_widget_enhanced_display() {
         <hr style="margin: 20px 0;">
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
-            <div>
-                <strong>🎯 Tréningové jednotky:</strong><br>
+            <div style="text-align: center;">
+                <strong>⌚ Tréningové jednotky</strong><br>
                 <span style="font-size: 24px; color: var(--theme-palette-color-3);"><?php echo $stats['training_units']; ?></span>
             </div>
-            <div>
-                <strong>👟 Aktívni tréneri:</strong><br>
+            <div style="text-align: center;">
+                <strong>👟 Aktívni tréneri</strong><br>
                 <span style="font-size: 24px; color: var(--theme-palette-color-3);"><?php echo $stats['trainers']; ?></span>
             </div>
         </div>
@@ -379,6 +382,19 @@ function spa_dashboard_widget_enhanced_display() {
     </div>
     
     <style>
+    .spa-dashboard-widget {
+            padding: 15px;
+        }
+
+        /* Stats grid */
+        .spa-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Stat link */
         .spa-stat-link {
             display: flex;
             align-items: center;
@@ -390,18 +406,23 @@ function spa_dashboard_widget_enhanced_display() {
             color: #2c3338;
             transition: all 0.2s;
         }
+
         .spa-stat-link:hover {
             background: var(--theme-palette-color-1);
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
+
         .spa-stat-link:hover .dashicons {
             color: white !important;
         }
+
         .spa-stat-link strong {
             flex: 1;
         }
+
+        /* Count badge */
         .spa-count {
             font-weight: bold;
             color: var(--theme-palette-color-3);
@@ -410,10 +431,61 @@ function spa_dashboard_widget_enhanced_display() {
             border-radius: 12px;
             font-size: 12px;
         }
+
         .spa-stat-link:hover .spa-count {
             background: rgba(255,255,255,0.2);
             color: white;
         }
+
+        /* Divider */
+        .spa-divider {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #dcdcde;
+        }
+
+        /* Additional stats */
+        .spa-additional-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .spa-stat-box {
+            padding: 10px;
+            background: #f6f7f7;
+            border-radius: 4px;
+        }
+
+        .spa-stat-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .spa-stat-value {
+            font-size: 24px;
+            color: var(--theme-palette-color-3);
+            font-weight: bold;
+        }
+
+        /* Help box */
+        .spa-help-box {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f6fc;
+            border-left: 4px solid #2271b1;
+            border-radius: 4px;
+        }
+
+        .spa-help-box a {
+            color: #2271b1;
+            text-decoration: none;
+        }
+
+        .spa-help-box a:hover {
+            text-decoration: underline;
+        }    
     </style>
     <?php
 }

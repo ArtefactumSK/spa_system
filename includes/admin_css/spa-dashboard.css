@@ -1,0 +1,109 @@
+/* ============================================
+   SPA Dashboard Widget Styles
+   ============================================ */
+
+/* Widget container */
+.spa-dashboard-widget {
+    padding: 15px;
+}
+
+/* Stats grid */
+.spa-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Stat link */
+.spa-stat-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #f6f7f7;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #2c3338;
+    transition: all 0.2s;
+}
+
+.spa-stat-link:hover {
+    background: #2271b1;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.spa-stat-link:hover .dashicons {
+    color: white !important;
+}
+
+.spa-stat-link strong {
+    flex: 1;
+}
+
+/* Count badge */
+.spa-count {
+    font-weight: bold;
+    color: #2271b1;
+    background: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+.spa-stat-link:hover .spa-count {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+/* Divider */
+.spa-divider {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #dcdcde;
+}
+
+/* Additional stats */
+.spa-additional-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.spa-stat-box {
+    padding: 10px;
+    background: #f6f7f7;
+    border-radius: 4px;
+}
+
+.spa-stat-box strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.spa-stat-value {
+    font-size: 24px;
+    color: #2271b1;
+    font-weight: bold;
+}
+
+/* Help box */
+.spa-help-box {
+    margin-top: 20px;
+    padding: 10px;
+    background: #f0f6fc;
+    border-left: 4px solid #2271b1;
+    border-radius: 4px;
+}
+
+.spa-help-box a {
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.spa-help-box a:hover {
+    text-decoration: underline;
+}
