@@ -474,7 +474,7 @@ function spa_dashboard_widget_enhanced_display() {
             margin-top: 20px;
             padding: 10px;
             background: #f0f6fc;
-            border-left: 4px solid #2271b1;
+            border-left: 4px solid var(--theme-palette-color-1);
             border-radius: 4px;
         }
 
