@@ -88,6 +88,36 @@ function spa_group_meta_box($post) {
     </style>
     
     <div class="spa-section">
+        <h4>💥 Vyberte ikonu programu</h4>
+        <div class="spa-meta-row">
+            <div class="spa-field" style="display: flex; align-items: center; gap: 15px;">
+                <?php if (empty($svg_files)) : ?>
+                    <p style="color: #d63638; margin: 0;">Žiadne ikony v /uploads/spa-icons/</p>
+                    <input type="hidden" name="spa_icon" value="">
+                <?php else : ?>
+                    <select name="spa_icon" id="spa_icon_select" style="width: 250px;">
+                        <option value="">-- Bez ikony --</option>
+                        <?php foreach ($svg_files as $file) : 
+                            $name = pathinfo($file, PATHINFO_FILENAME);
+                        ?>
+                            <option value="<?php echo esc_attr($file); ?>" <?php selected($icon, $file); ?>>
+                                <?php echo esc_html($name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="spa-icon-preview" id="spa_icon_preview">
+                        <?php if ($icon && file_exists($icons_dir . $icon)) : ?>
+                            <?php echo file_get_contents($icons_dir . $icon); ?>
+                        <?php else : ?>
+                            <span style="color:#999; font-size:12px;">--</span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    
+    <div class="spa-section">
         <h4>🤸 Základné informácie</h4>
         
         <div class="spa-meta-row">
@@ -169,37 +199,8 @@ function spa_group_meta_box($post) {
             <?php endforeach; ?>
         </div>
         <p class="spa-help" style="margin-top: 10px;">Vyberte trénerov, ktorí vedú tento program</p>
-    </div>
+    </div>   
     
-    <div class="spa-section">
-        <h4>💥 Vyberte ikonu programu</h4>
-        <div class="spa-meta-row">
-            <div class="spa-field" style="display: flex; align-items: center; gap: 15px;">
-                <?php if (empty($svg_files)) : ?>
-                    <p style="color: #d63638; margin: 0;">Žiadne ikony v /uploads/spa-icons/</p>
-                    <input type="hidden" name="spa_icon" value="">
-                <?php else : ?>
-                    <select name="spa_icon" id="spa_icon_select" style="width: 250px;">
-                        <option value="">-- Bez ikony --</option>
-                        <?php foreach ($svg_files as $file) : 
-                            $name = pathinfo($file, PATHINFO_FILENAME);
-                        ?>
-                            <option value="<?php echo esc_attr($file); ?>" <?php selected($icon, $file); ?>>
-                                <?php echo esc_html($name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <div class="spa-icon-preview" id="spa_icon_preview">
-                        <?php if ($icon && file_exists($icons_dir . $icon)) : ?>
-                            <?php echo file_get_contents($icons_dir . $icon); ?>
-                        <?php else : ?>
-                            <span style="color:#999; font-size:12px;">--</span>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
     
     <script>
     (function() {
