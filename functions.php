@@ -317,7 +317,7 @@ function spa_dashboard_widget_enhanced_display() {
         <p><strong>Verzia:</strong> 26.1.0</p>
         <p><strong>Načítané moduly SPA:</strong> 15</p>
         
-        <h3 style="margin-top: 20px; margin-bottom: 15px;">📊 Rýchle linky:</h3>
+        <h3 style="margin-top: 20px; margin-bottom: 15px;">🚀 Rýchle linky:</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             
