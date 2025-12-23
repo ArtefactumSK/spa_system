@@ -296,7 +296,7 @@ function spa_add_all_meta_boxes() {
                 });
             });
         })();
-    </script>
+    </script> 
     <?php
 }
 

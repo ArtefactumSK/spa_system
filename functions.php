@@ -185,19 +185,26 @@ define('SPA_INCLUDES', SPA_PATH . '/includes/');
                );
            }
        }
+       
+       // META BOXY CSS - na stránkach editácie CPT
+       $allowed_screens = ['post.php', 'post-new.php'];
+       
+       if (in_array($hook, $allowed_screens)) {
+           global $post_type;
+           
+           // Načítaj CSS len pre SPA post types
+           $spa_post_types = ['spa_group', 'spa_place', 'spa_event', 'spa_registration', 'spa_attendance'];
+           
+           if (in_array($post_type, $spa_post_types)) {
+               wp_enqueue_style(
+                   'spa-metaboxes',
+                   SPA_URL . '/includes/admin_css/spa-dashboard.css',
+                   [],
+                   SPA_VERSION
+               );
+           }
+       }
    }
-
-add_action('wp_enqueue_scripts', function() {
-    // Parent theme
-    wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css');
-    
-    // Child theme
-    wp_enqueue_style('child-style', get_stylesheet_directory_uri() . '/style.css', ['parent-style'], SPA_VERSION);
-    
-    // jQuery (potrebné pre AJAX)
-    wp_enqueue_script('jquery');
-});
-
 /* ==========================
    ARTEFACTUM SUPPORT
    ========================== */
