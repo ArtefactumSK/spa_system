@@ -124,7 +124,7 @@ if (is_admin()) {
 
         // Skrytie ďalších položiek pre všetkých okrem používateľa 'artefactum'
         if ($current_user->user_login != 'artefactum') {
-            echo '<style> 
+            echo '<style>   
                 a.page-title-action[href*="post-new.php?post_type=ct_content_block"],#adminmenu a[href*="ct-dashboard-account"], #adminmenu .wp-first-item a[href*="ct-dashboard"], #adminmenu a[href*="site-editor.php"], #adminmenu a[href*="customize.php?return=%2Fwp-admin%2Fthemes.php"], .theme-actions a[href*="wp-admin%2Fthemes.php"], a.hide-if-no-customize, .ab-submenu li a[href*="options-general.php?page=translate-press"], #wp-admin-bar-elementor-maintenance-on, #wp_mail_smtp_reports_widget_lite, #wp-admin-bar-litespeed-bar-manage, #wp-admin-bar-litespeed-bar-setting, #wp-admin-bar-litespeed-bar-imgoptm,#new_admin_email, #new_admin_email + p.description, label[for="new_admin_email"] {
                     display: none !important;
                 }
@@ -165,8 +165,27 @@ define('SPA_URL', get_stylesheet_directory_uri());
 define('SPA_INCLUDES', SPA_PATH . '/includes/');
 
 /* ==========================
-   NAČÍTANIE ŠTÝLOV
+   NAČÍTANIE ADMIN ŠTÝLOV
    ========================== */
+
+   add_action('admin_enqueue_scripts', 'spa_load_admin_styles');
+
+   function spa_load_admin_styles($hook) {
+       
+       // Dashboard widget CSS - len na hlavnej stránke
+       if ($hook === 'index.php') {
+           
+           // Len pre Tréner SPA a vyššie
+           if (current_user_can('spa_trainer') || current_user_can('administrator')) {
+               wp_enqueue_style(
+                   'spa-dashboard',
+                   SPA_URL . '/includes/admin_css/spa-dashboard.css',
+                   [],
+                   SPA_VERSION
+               );
+           }
+       }
+   }
 
 add_action('wp_enqueue_scripts', function() {
     // Parent theme
@@ -177,9 +196,6 @@ add_action('wp_enqueue_scripts', function() {
     
     // jQuery (potrebné pre AJAX)
     wp_enqueue_script('jquery');
-
-    if ($hook !== 'index.php') { return;}
-    wp_enqueue_style('spa-dashboard',get_stylesheet_directory_uri() . '/includes/admin_css/spa-dashboard.css',[],SPA_VERSION);
 });
 
 /* ==========================
@@ -316,13 +332,13 @@ function spa_dashboard_widget_enhanced_display() {
     ];
     
     ?>
-    <div style="padding: 15px;">
+    <div class="spa-dashboard-widget">
         <p><strong>Verzia:</strong> 26.1.0</p>
         <p><strong>Načítané moduly SPA:</strong> 15</p>
         
         <h3 style="margin-top: 20px; margin-bottom: 15px;">🚀  Rýchle linky:</h3>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="spa-stats-grid">
             
             <a href="<?php echo admin_url('edit.php?post_type=spa_group'); ?>" class="spa-stat-link">
                 <span class="dashicons dashicons-groups dashicons-universal-access-alt" style="color: var(--theme-palette-color-1);"></span>
@@ -364,7 +380,7 @@ function spa_dashboard_widget_enhanced_display() {
         
         <hr style="margin: 20px 0;">
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+        <div class="spa-stats-grid">
             <div style="text-align: center;">
                 <strong>⌚ Tréningové jednotky</strong><br>
                 <span style="font-size: 24px; color: var(--theme-palette-color-3);"><?php echo $stats['training_units']; ?></span>
@@ -375,118 +391,11 @@ function spa_dashboard_widget_enhanced_display() {
             </div>
         </div>
         
-        <p style="margin-top: 20px; padding: 10px; background: #f0f6fc; border-left: 4px solid var(--theme-palette-color-1);">
-            💡 <strong>Potrebuješ pomoc?</strong> — 
+        <p style="margin-top: 20px; padding: 10px; background: #f0f6fc; border-left: 4px solid #fc6600;border-radius: 4px;">
+            💡 <strong>Potrebuješ pomoc?</strong> → 
             <a href="mailto:support@artefactum.sk">support@artefactum.sk</a>
         </p>
     </div>
-    
-    <style>
-    .spa-dashboard-widget {
-            padding: 15px;
-        }
-
-        /* Stats grid */
-        .spa-stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        /* Stat link */
-        .spa-stat-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px;
-            background: #f6f7f7;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #2c3338;
-            transition: all 0.2s;
-        }
-
-        .spa-stat-link:hover {
-            background: var(--theme-palette-color-1);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-
-        .spa-stat-link:hover .dashicons {
-            color: white !important;
-        }
-
-        .spa-stat-link strong {
-            flex: 1;
-        }
-
-        /* Count badge */
-        .spa-count {
-            font-weight: bold;
-            color: var(--theme-palette-color-3);
-            background: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-        .spa-stat-link:hover .spa-count {
-            background: rgba(255,255,255,0.2);
-            color: white;
-        }
-
-        /* Divider */
-        .spa-divider {
-            margin: 20px 0;
-            border: none;
-            border-top: 1px solid #dcdcde;
-        }
-
-        /* Additional stats */
-        .spa-additional-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 13px;
-        }
-
-        .spa-stat-box {
-            padding: 10px;
-            background: #f6f7f7;
-            border-radius: 4px;
-        }
-
-        .spa-stat-box strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .spa-stat-value {
-            font-size: 24px;
-            color: var(--theme-palette-color-3);
-            font-weight: bold;
-        }
-
-        /* Help box */
-        .spa-help-box {
-            margin-top: 20px;
-            padding: 10px;
-            background: #f0f6fc;
-            border-left: 4px solid var(--theme-palette-color-1);
-            border-radius: 4px;
-        }
-
-        .spa-help-box a {
-            color: #2271b1;
-            text-decoration: none;
-        }
-
-        .spa-help-box a:hover {
-            text-decoration: underline;
-        }    
-    </style>
     <?php
 }
 // BLOKOVANIE EMAILOV NA TESTOVACEJ DOMÉNE

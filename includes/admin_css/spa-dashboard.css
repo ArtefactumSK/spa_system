@@ -1,18 +1,19 @@
 /* ============================================
-   SPA Dashboard Widget Styles
+   SPA DASHBOARD WIDGET STYLES
+   Verzia: 1.0.0
    ============================================ */
 
 /* Widget container */
 .spa-dashboard-widget {
-    padding: 15px;
+    padding: 12px;
 }
 
 /* Stats grid */
 .spa-stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 12px;
 }
 
 /* Stat link */
@@ -20,19 +21,20 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px;
+    padding: 10px 12px;
     background: #f6f7f7;
-    border-radius: 4px;
+    border-radius: 6px;
     text-decoration: none;
     color: #2c3338;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
 }
 
 .spa-stat-link:hover {
-    background: #2271b1;
+    background: var(--theme-palette-color-1);
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    /* border-left-color: var(--theme-palette-color-3); */
+    transform: translateX(2px);
 }
 
 .spa-stat-link:hover .dashicons {
@@ -41,69 +43,76 @@
 
 .spa-stat-link strong {
     flex: 1;
+    font-size: 13px;
 }
 
 /* Count badge */
 .spa-count {
-    font-weight: bold;
-    color: #2271b1;
+    font-weight: 600;
+    color: var(--theme-palette-color-3);
     background: white;
     padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+    border-radius: 10px;
+    font-size: 11px;
 }
 
 .spa-stat-link:hover .spa-count {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.25);
     color: white;
 }
 
-/* Divider */
-.spa-divider {
-    margin: 20px 0;
-    border: none;
-    border-top: 1px solid #dcdcde;
+/* Dashicons color */
+.spa-stat-link .dashicons {
+    color: var(--theme-palette-color-1);
+    transition: color 0.2s;
 }
 
-/* Additional stats */
+/* Additional stats section */
 .spa-additional-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.spa-stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.spa-stat-row strong {
     font-size: 13px;
 }
 
-.spa-stat-box {
-    padding: 10px;
-    background: #f6f7f7;
-    border-radius: 4px;
-}
-
-.spa-stat-box strong {
-    display: block;
-    margin-bottom: 5px;
-}
-
 .spa-stat-value {
-    font-size: 24px;
-    color: #2271b1;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--theme-palette-color-1);
 }
 
-/* Help box */
+/* Help section */
 .spa-help-box {
-    margin-top: 20px;
-    padding: 10px;
+    margin-top: 16px;
+    padding: 12px;
     background: #f0f6fc;
-    border-left: 4px solid #2271b1;
+    border-left: 4px solid var(--theme-palette-color-1);
     border-radius: 4px;
+    font-size: 13px;
 }
 
-.spa-help-box a {
-    color: #2271b1;
+.spa-help-box a, .spa-dashboard-widget p a {
+    color: #fc6600;
     text-decoration: none;
+    font-weight: 600;
 }
 
-.spa-help-box a:hover {
-    text-decoration: underline;
+.spa-help-box a:hover, .spa-dashboard-widget p a:hover {
+    text-decoration: none;color: var(--theme-palette-color-3) !important;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .spa-stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
