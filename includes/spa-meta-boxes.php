@@ -397,7 +397,7 @@ function spa_group_schedule_meta_box($post) {
 /* ============================================================
    META BOX: CENNÍK PROGRAMU (spa_group)
    ============================================================ */
-function spa_group_pricing_meta_box($post) {
+   function spa_group_pricing_meta_box($post) {
     wp_nonce_field('spa_save_group_pricing', 'spa_group_pricing_nonce');
     
     $price_1x = get_post_meta($post->ID, 'spa_price_1x_weekly', true);
@@ -407,14 +407,6 @@ function spa_group_pricing_meta_box($post) {
     $external_surcharge = get_post_meta($post->ID, 'spa_external_surcharge', true);
     
     ?>
-    <style>
-    .spa-pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-    .spa-price-box { background: #fff; border: 2px solid #ddd; padding: 15px; border-radius: 8px; }
-    .spa-price-box h5 { margin: 0 0 10px 0; color: #333; }
-    .spa-price-box input { width: 100px; padding: 8px; font-size: 16px; font-weight: bold; }
-    .spa-price-box .currency { font-size: 16px; margin-left: 5px; }
-    .spa-help { color: #666; font-size: 12px; margin-top: 5px; }
-    </style>
     
     <div class="spa-pricing-grid">
         <div class="spa-price-box">
