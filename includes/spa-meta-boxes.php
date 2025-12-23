@@ -243,8 +243,7 @@ function spa_group_meta_box($post) {
             <?php endforeach; ?>
         </div>
         <p class="spa-help" style="margin-top: 10px;">Vyberte trénerov, ktorí vedú tento program</p>
-    </div>   
-    
+    </div>       
     
     <script>
         (function() {
