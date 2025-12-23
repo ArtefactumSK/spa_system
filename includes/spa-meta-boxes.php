@@ -157,7 +157,7 @@ function spa_group_meta_box($post) {
         
         <div class="spa-meta-row">
             <label>Vekové rozpätie (rokov):</label>
-            <div class="spa-field" style="display: flex; gap: 15px; align-items: center;">
+            <div class="spa-field" style="display: flex; gap: 10px; align-items: center;">
                 <div style="flex: 1;">
                     <label style="width: auto; font-weight: 600;">OD:</label>
                     <input type="number" name="spa_age_from" value="<?php echo esc_attr($age_from); ?>" step="0.1" min="0" max="100" placeholder="napr. 3 alebo 3.5" style="max-width: 120px;">
