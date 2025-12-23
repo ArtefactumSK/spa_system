@@ -470,15 +470,6 @@ function spa_place_meta_box($post) {
     $notes = get_post_meta($post->ID, 'spa_place_notes', true);
     
     ?>
-    <style>
-    .spa-meta-row { display: flex; margin-bottom: 15px; align-items: flex-start; }
-    .spa-meta-row label { width: 150px; font-weight: 600; padding-top: 8px; }
-    .spa-meta-row .spa-field { flex: 1; }
-    .spa-meta-row input[type="text"], .spa-meta-row textarea, .spa-meta-row select { width: 100%; max-width: 400px; padding: 8px; }
-    .spa-help { color: #666; font-size: 12px; margin-top: 4px; }
-    .spa-section { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 20px; }
-    .spa-section h4 { margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
-    </style>
     
     <div class="spa-section">
         <h4>📍 Základné informácie</h4>

@@ -102,6 +102,8 @@
     .spa-trainer-item label { margin: 0; width: auto; }
     .spa-icon-preview { width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
 
+    
+
 /* Help section */
 .spa-help-box {
     margin-top: 16px;
