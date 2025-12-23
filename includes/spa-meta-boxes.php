@@ -92,19 +92,6 @@ function spa_group_meta_box($post) {
     $all_trainers = get_users(['role' => 'spa_trainer', 'orderby' => 'display_name']);
     
     ?>
-    <style>
-    .spa-meta-row { display: flex; margin-bottom: 15px; align-items: flex-start; }
-    .spa-meta-row label { width: 150px; font-weight: 600; padding-top: 8px; }
-    .spa-meta-row .spa-field { flex: 1; }
-    .spa-meta-row input[type="text"], .spa-meta-row select { width: 100%; max-width: 400px; padding: 8px; }
-    .spa-help { color: #666; font-size: 12px; margin-top: 4px; }
-    .spa-section { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 20px; }
-    .spa-section h4 { margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
-    .spa-trainers-list { max-width: 400px; }
-    .spa-trainer-item { padding: 8px; background: #fff; border: 1px solid #ddd; margin-bottom: 8px; border-radius: 4px; }
-    .spa-trainer-item label { margin: 0; width: auto; }
-    .spa-icon-preview { width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
-    </style>
     
     <div class="spa-section">
         <h4>💥 Vyberte ikonu programu</h4>
