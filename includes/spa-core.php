@@ -151,6 +151,40 @@ function spa_remove_menu_pages() {
 }
 
 /* ==========================
+   PRESUŇ KOMENTÁROV ZA SPA MODULY
+   ========================== */
+
+   add_action('admin_menu', 'spa_move_comments_menu', 999);
+
+   function spa_move_comments_menu() {
+       global $menu;
+       
+       // Nájdi položku "Komentáre"
+       $comments_key = null;
+       foreach ($menu as $key => $item) {
+           if ($item[2] === 'edit-comments.php') {
+               $comments_key = $key;
+               break;
+           }
+       }
+       
+       // Ak existuje, presuň ju
+       if ($comments_key !== null) {
+           $comments_item = $menu[$comments_key];
+           
+           // Odstráň zo starej pozície
+           unset($menu[$comments_key]);
+           
+           // Pridaj na novú pozíciu (za SPA moduly)
+           // Pozícia 30 = za všetkými SPA modulmi
+           $menu[30] = $comments_item;
+       }
+       
+       // Preusporiadaj pole (odstráni medzery v indexoch)
+       ksort($menu);
+   }
+
+/* ==========================
    CSS SKRYTIE PRVKOV V ADMIN
    ========================== */
 
