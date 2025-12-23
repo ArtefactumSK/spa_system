@@ -518,46 +518,6 @@ function spa_place_meta_box($post) {
     <?php
 }
 
-/* ============================================================
-   SAVE ACTIONS - Uloženie všetkých meta boxov
-   ============================================================ */
-
-// DETAILY PROGRAMU (spa_group)
-/* 
-add_action('save_post_spa_group', 'spa_save_group_details_meta', 10, 2);
-function spa_save_group_details_meta($post_id, $post) {
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!isset($_POST['spa_group_nonce']) || !wp_verify_nonce($_POST['spa_group_nonce'], 'spa_save_group_details')) return;
-    if (!current_user_can('edit_post', $post_id)) return;
-    
-    $fields = ['spa_place_id', 'spa_capacity', 'spa_registration_type', 'spa_level', 'spa_icon'];
-    foreach ($fields as $field) {
-        if (isset($_POST[$field])) {
-            $value = ($field === 'spa_place_id' || $field === 'spa_capacity') 
-                ? intval($_POST[$field]) 
-                : sanitize_text_field($_POST[$field]);
-            update_post_meta($post_id, $field, $value);
-        }
-    }
-    
-    // Vekové hodnoty - prijmi čiarku aj bodku
-    if (isset($_POST['spa_age_from'])) {
-        $age = floatval(str_replace(',', '.', $_POST['spa_age_from']));
-        update_post_meta($post_id, 'spa_age_from', $age);
-    }
-    if (isset($_POST['spa_age_to'])) {
-        $age = floatval(str_replace(',', '.', $_POST['spa_age_to']));
-        update_post_meta($post_id, 'spa_age_to', $age);
-    }
-    
-    // Tréneri (pole)
-    $trainers = isset($_POST['spa_trainers']) && is_array($_POST['spa_trainers']) 
-        ? array_map('intval', $_POST['spa_trainers']) 
-        : [];
-    update_post_meta($post_id, 'spa_trainers', $trainers);  
-
-}
- */
 // ROZVRH PROGRAMU (spa_group)
 add_action('save_post_spa_group', 'spa_save_group_schedule_meta', 11, 2);
 function spa_save_group_schedule_meta($post_id, $post) {
@@ -745,16 +705,14 @@ function spa_ajax_load_icon() {
     wp_die();
 }
 
-/* ============================================================
-   SAVE: Uloženie meta dát programu
-   ============================================================ */
-
-   add_action('save_post_spa_group', 'spa_save_group_meta_data', 10, 2);
-   function spa_save_group_details_meta($post_id, $post) {
+// DETAILY PROGRAMU (spa_group)
+add_action('save_post_spa_group', 'spa_save_group_details_meta', 10, 2);
+function spa_save_group_details_meta($post_id, $post) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!isset($_POST['spa_group_nonce']) || !wp_verify_nonce($_POST['spa_group_nonce'], 'spa_save_group_details')) return;
     if (!current_user_can('edit_post', $post_id)) return;
     
+    // Základné polia
     $fields = ['spa_place_id', 'spa_capacity', 'spa_registration_type', 'spa_level', 'spa_icon'];
     foreach ($fields as $field) {
         if (isset($_POST[$field])) {
@@ -765,7 +723,7 @@ function spa_ajax_load_icon() {
         }
     }
     
-    // Vekové hodnoty - prijmi čiarku aj bodku
+    // Vekové hodnoty
     if (isset($_POST['spa_age_from'])) {
         $age = floatval(str_replace(',', '.', $_POST['spa_age_from']));
         update_post_meta($post_id, 'spa_age_from', $age);
@@ -775,81 +733,19 @@ function spa_ajax_load_icon() {
         update_post_meta($post_id, 'spa_age_to', $age);
     }
     
-    // Tréneri (pole)
+    // Tréneri
     $trainers = isset($_POST['spa_trainers']) && is_array($_POST['spa_trainers']) 
         ? array_map('intval', $_POST['spa_trainers']) 
         : [];
     update_post_meta($post_id, 'spa_trainers', $trainers);
     
-    // ✅ PRIDANÉ: Primárna farba
+    // ✅ Primárna farba
     if (isset($_POST['spa_icon_primary_color'])) {
         update_post_meta($post_id, 'spa_icon_primary_color', sanitize_hex_color($_POST['spa_icon_primary_color']));
     }
     
-    // ✅ PRIDANÉ: Sekundárna farba
+    // ✅ Sekundárna farba
     if (isset($_POST['spa_icon_secondary_color'])) {
         update_post_meta($post_id, 'spa_icon_secondary_color', sanitize_hex_color($_POST['spa_icon_secondary_color']));
     }
 }
-   /* function spa_save_group_meta_data($post_id, $post) {
-       
-       // Security check
-       if (!isset($_POST['spa_group_nonce']) || !wp_verify_nonce($_POST['spa_group_nonce'], 'spa_save_group')) {
-           return;
-       }
-       
-       if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-           return;
-       }
-       
-       if (!current_user_can('edit_post', $post_id)) {
-           return;
-       }
-       
-       // Ikona
-       if (isset($_POST['spa_icon'])) {
-           update_post_meta($post_id, 'spa_icon', sanitize_text_field($_POST['spa_icon']));
-       }
-       
-       // Primárna farba
-       if (isset($_POST['spa_icon_primary_color'])) {
-           update_post_meta($post_id, 'spa_icon_primary_color', sanitize_hex_color($_POST['spa_icon_primary_color']));
-       }
-       
-       // Sekundárna farba
-       if (isset($_POST['spa_icon_secondary_color'])) {
-           update_post_meta($post_id, 'spa_icon_secondary_color', sanitize_hex_color($_POST['spa_icon_secondary_color']));
-       }
-       
-       // Cena
-       if (isset($_POST['spa_price'])) {
-           $price = str_replace(',', '.', $_POST['spa_price']);
-           update_post_meta($post_id, 'spa_price', floatval($price));
-       }
-       
-       // Kapacita
-       if (isset($_POST['spa_capacity'])) {
-           update_post_meta($post_id, 'spa_capacity', intval($_POST['spa_capacity']));
-       }
-       
-       // Rozvrh (JSON)
-       if (isset($_POST['spa_schedule']) && is_array($_POST['spa_schedule'])) {
-           $schedule = array();
-           foreach ($_POST['spa_schedule'] as $row) {
-               $day = sanitize_text_field($row['day']);
-               $time = sanitize_text_field($row['time']);
-               if (!empty($day) || !empty($time)) {
-                   $schedule[] = array('day' => $day, 'time' => $time);
-               }
-           }
-           update_post_meta($post_id, 'spa_schedule', wp_json_encode($schedule));
-       }
-       
-       // Trenéri (array)
-       if (isset($_POST['spa_trainer_ids'])) {
-           $trainer_ids = array_map('intval', $_POST['spa_trainer_ids']);
-           update_post_meta($post_id, 'spa_trainer_ids', $trainer_ids);
-       } else {
-           delete_post_meta($post_id, 'spa_trainer_ids');
-       }
-   } */
