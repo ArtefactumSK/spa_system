@@ -217,3 +217,167 @@
         grid-template-columns: 1fr;
     }
 }
+/**
+ * SPA Admin Meta Boxes - Štýly
+ * @package Samuel Piasecky ACADEMY
+ * @version 1.0.0
+ */
+
+/* ==========================
+   REGISTRÁCIA - META BOX
+   ========================== */
+
+   .spa-meta-box-table {
+    width: 100%;
+    border-collapse: collapse;
+    max-width: 700px;
+    margin-bottom: 20px;
+}
+
+.spa-meta-box-table th {
+    text-align: right;
+    padding: 12px;
+    width: 30%;
+    background: #f9f9f9;
+    font-weight: 600;
+    border: 1px solid #ddd;
+    vertical-align: top;
+}
+
+.spa-meta-box-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+.spa-no-data {
+    color: #999;
+    font-style: italic;
+}
+
+.spa-credential {
+    font-size: 16px;
+    color: #2271b1;
+    font-family: monospace;
+}
+
+.spa-separator {
+    margin: 0 20px;
+    color: #ddd;
+}
+
+.spa-btn-edit {
+    margin-top: 8px !important;
+}
+
+.spa-edit-box {
+    margin-top: 25px;
+    padding: 20px;
+    background: #fff8e5;
+    border: 2px solid #f0ad4e;
+    border-radius: 8px;
+    max-width: 700px;
+}
+
+.spa-edit-box h4 {
+    margin: 0 0 15px 0;
+    color: #856404;
+    font-size: 16px;
+}
+
+.spa-edit-box p {
+    margin-bottom: 15px;
+}
+
+.spa-edit-box label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.spa-select-program {
+    max-width: 500px;
+}
+
+.spa-select-status {
+    max-width: 300px;
+}
+
+/* ==========================
+   SKUPINY TRENINGOV - META BOX
+   ========================== */
+
+.spa-meta-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.spa-meta-section h4 {
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    color: #23282d;
+}
+
+.spa-meta-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.spa-meta-row label {
+    width: 140px;
+    font-weight: 600;
+    padding-top: 6px;
+}
+
+.spa-meta-row .spa-field {
+    flex: 1;
+}
+
+.spa-icon-preview {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    margin-left: 10px;
+}
+
+.spa-icon-preview svg {
+    width: 69px;
+    height: 69px;
+}
+
+.spa-schedule-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.spa-schedule-row select,
+.spa-schedule-row input {
+    padding: 6px 10px;
+}
+
+.spa-trainer-checkboxes label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: normal;
+}
+
+.spa-trainer-checkboxes input {
+    margin-right: 8px;
+}
+
+.spa-help {
+    color: #666;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+}

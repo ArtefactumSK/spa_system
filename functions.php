@@ -325,7 +325,7 @@ function spa_dashboard_widget_enhanced_display() {
     // Načítaj počty z DB
     $stats = [
         'programs' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_programs WHERE active = 1"),
-        'registrations' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}spa_registrations WHERE status = 'active'"),
+        'registrations' => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}posts WHERE post_type = 'spa_registration' AND post_status = 'publish'"),
         'places' => $wpdb->get_var("
             SELECT COUNT(*) FROM {$wpdb->prefix}terms t
             INNER JOIN {$wpdb->prefix}term_taxonomy tt ON t.term_id = tt.term_id
