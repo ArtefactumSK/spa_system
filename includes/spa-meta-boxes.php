@@ -405,7 +405,6 @@ function spa_group_schedule_meta_box($post) {
     $price_monthly = get_post_meta($post->ID, 'spa_price_monthly', true);
     $price_semester = get_post_meta($post->ID, 'spa_price_semester', true);
     $external_surcharge = get_post_meta($post->ID, 'spa_external_surcharge', true);
-    
     ?>
     
     <div class="spa-pricing-grid">
