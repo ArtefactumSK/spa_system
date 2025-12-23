@@ -66,6 +66,23 @@ h2 .spa-icon { width: 32px; height: 32px !important; display:inline-block;}
 .gfield_error input[type]:where(:not(.gform-text-input-reset):not([type=hidden])):where(:not(.gform-theme__disable):not(.gform-theme__disable *):not(.gform-theme__disable-framework):not(.gform-theme__disable-framework *)),.gform-theme .gform_validation_errors{border-color: #F42E17 !important;}
 select::placeholder, textarea::placeholder, input:is([type="url"], [type="tel"], [type="text"], [type="time"], [type="date"], [type="datetime"], [type="datetime-local"], [type="email"], [type="number"], [type="search"], [type="password"])::placeholder, .ct-pseudo-input::placeholder, fieldset .wc-stripe-elements-field::placeholder, .ff-inherit-theme-style .ff-el-form-control:not([size]):not([multiple])::placeholder{opacity: .3 !important;}
 
+/* Farebná paleta */
+.spa-icon-color-section { display: flex; gap: 20px; margin-top: 15px; }
+.spa-color-group { flex: 1; }
+.spa-color-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 12px; }
+.spa-color-palette { display: flex; flex-wrap: wrap; gap: 6px; }
+.spa-color-option { 
+    width: 36px; 
+    height: 36px; 
+    border-radius: 50%; 
+    border: 3px solid transparent; 
+    cursor: pointer; 
+    transition: all 0.2s;
+    position: relative;
+}
+.spa-color-option:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.spa-color-option.selected { border-color: #2271b1; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2271b1; }
+.spa-color-option input { position: absolute; opacity: 0; pointer-events: none; }
 
 
 @media (max-width: 767px) {

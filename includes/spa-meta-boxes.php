@@ -49,6 +49,8 @@ function spa_group_meta_box($post) {
     $age_to = get_post_meta($post->ID, 'spa_age_to', true);
     $level = get_post_meta($post->ID, 'spa_level', true);
     $icon = get_post_meta($post->ID, 'spa_icon', true);
+    $icon_primary = get_post_meta($post->ID, 'spa_icon_primary_color', true);
+    $icon_secondary = get_post_meta($post->ID, 'spa_icon_secondary_color', true);
     
     // Načítaj dostupné SVG ikony
     $svg_files = [];
