@@ -52,6 +52,23 @@ function spa_group_meta_box($post) {
     $icon_primary = get_post_meta($post->ID, 'spa_icon_primary_color', true);
     $icon_secondary = get_post_meta($post->ID, 'spa_icon_secondary_color', true);
     
+    // SPA Color Palette
+    $spa_colors = array(
+        '#005de8' => 'Olympic blue',
+        '#00C853' => 'Olympic green',
+        '#FF1439' => 'Olympic red',
+        '#FFB81C' => 'Olympic yellow',
+        '#000000' => 'Olympic black',
+        '#f2f5f7' => 'Light grey',
+        '#FAFBFC' => 'Smart grey',
+        '#ffffff' => 'White',
+        '#A7E9E9' => 'Tyrkys',
+        '#E3F2FD' => 'Pastel blue',
+        '#87C9FF' => 'Light blue',
+        '#FF9AA2' => 'Pinky',
+        '#a855f7' => 'Lila'
+    );
+    
     // Načítaj dostupné SVG ikony
     $svg_files = [];
     $icons_dir = WP_CONTENT_DIR . '/uploads/spa-icons/';
@@ -115,7 +132,8 @@ function spa_group_meta_box($post) {
                             <?php endif; ?>
                         </div>
                         
-                        <!-- FAREBNÁ PALETA -->
+                        <!-- FAREBNÁ PALETA -->                        
+                        <?php if (!empty($svg_files)) : ?>
                         <div class="spa-color-section">
                             <div class="spa-color-group">
                                 <label>🎨 Primárna farba</label>
@@ -151,9 +169,8 @@ function spa_group_meta_box($post) {
                                 </div>
                             </div>
                         </div>
-                        
-                    <?php endif; ?>
-                </div>
+                        <?php endif; ?>
+                    </div>
             </div>
         </div>
     
@@ -566,24 +583,7 @@ function spa_save_group_details_meta($post_id, $post) {
     $trainers = isset($_POST['spa_trainers']) && is_array($_POST['spa_trainers']) 
         ? array_map('intval', $_POST['spa_trainers']) 
         : [];
-    update_post_meta($post_id, 'spa_trainers', $trainers);
-
-    // SPA Color Palette
-    $spa_colors = array(
-        '#005de8' => 'Olympic blue',
-        '#00C853' => 'Olympic green',
-        '#FF1439' => 'Olympic red',
-        '#FFB81C' => 'Olympic yellow',
-        '#000000' => 'Olympic black',
-        '#f2f5f7' => 'Light grey',
-        '#FAFBFC' => 'Smart grey',
-        '#ffffff' => 'White',
-        '#A7E9E9' => 'Tyrkys',
-        '#E3F2FD' => 'Pastel blue',
-        '#87C9FF' => 'Light blue',
-        '#FF9AA2' => 'Pinky',
-        '#a855f7' => 'Lila'
-    );
+    update_post_meta($post_id, 'spa_trainers', $trainers);  
 
 }
 
