@@ -102,7 +102,91 @@
     .spa-trainer-item label { margin: 0; width: auto; }
     .spa-icon-preview { width: 60px; height: 60px; border: 1px solid #ddd; border-radius: 4px; padding: 8px; background: #f9f9f9; display: flex; align-items: center; justify-content: center; }
 
-    
+/* ============================================================
+   SPA META BOXES - Farebná paleta pre ikony
+   ============================================================ */
+
+   .spa-color-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.spa-color-group {
+    margin-bottom: 15px;
+}
+
+.spa-color-group:last-child {
+    margin-bottom: 0;
+}
+
+.spa-color-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.spa-color-palette {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.spa-color-option {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.spa-color-option:hover {
+    transform: scale(1.1);
+    border-color: #0066FF;
+}
+
+.spa-color-option.selected {
+    border: 3px solid #0066FF;
+    box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2);
+}
+
+.spa-color-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Icon preview box */
+.spa-icon-preview {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+}
+
+.spa-icon-preview svg {
+    width: 60px;
+    height: 60px;
+}
+
+/* Helper text */
+.spa-help {
+    color: #666;
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
+}    
 
 /* Help section */
 .spa-help-box {

@@ -37,7 +37,7 @@ function spa_add_all_meta_boxes() {
 /* ============================================================
    META BOX: DETAILY PROGRAMU (spa_group) - NOVÝ
    ============================================================ */
-function spa_group_meta_box($post) {
+   function spa_group_meta_box($post) {
     wp_nonce_field('spa_save_group_details', 'spa_group_nonce');
     
     $place_id = get_post_meta($post->ID, 'spa_place_id', true);
@@ -110,56 +110,57 @@ function spa_group_meta_box($post) {
                                 <?php echo esc_html($name); ?>
                             </option>
                         <?php endforeach; ?>
-                        </select>
-                        <div class="spa-icon-preview" id="spa_icon_preview">
-                            <?php if ($icon && file_exists($svg_dir . $icon)) : ?>
-                                <?php echo file_get_contents($svg_dir . $icon); ?>
-                            <?php else : ?>
-                                <span style="color:#999;">--</span>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <!-- FAREBNÁ PALETA -->                        
-                        <?php if (!empty($svg_files)) : ?>
-                        <div class="spa-color-section">
-                            <div class="spa-color-group">
-                                <label>🎨 Primárna farba</label>
-                                <div class="spa-color-palette">
-                                    <?php foreach ($spa_colors as $hex => $name): ?>
-                                        <div class="spa-color-option <?php echo ($icon_primary === $hex) ? 'selected' : ''; ?>" 
-                                            style="background-color: <?php echo esc_attr($hex); ?>;"
-                                            data-color="<?php echo esc_attr($hex); ?>"
-                                            title="<?php echo esc_attr($name); ?>">
-                                            <input type="radio" 
-                                                name="spa_icon_primary_color" 
-                                                value="<?php echo esc_attr($hex); ?>" 
-                                                <?php checked($icon_primary, $hex); ?>>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                            
-                            <div class="spa-color-group">
-                                <label>🎨 Sekundárna farba</label>
-                                <div class="spa-color-palette">
-                                    <?php foreach ($spa_colors as $hex => $name): ?>
-                                        <div class="spa-color-option <?php echo ($icon_secondary === $hex) ? 'selected' : ''; ?>" 
-                                            style="background-color: <?php echo esc_attr($hex); ?>;"
-                                            data-color="<?php echo esc_attr($hex); ?>"
-                                            title="<?php echo esc_attr($name); ?>">
-                                            <input type="radio" 
-                                                name="spa_icon_secondary_color" 
-                                                value="<?php echo esc_attr($hex); ?>" 
-                                                <?php checked($icon_secondary, $hex); ?>>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        </div>
+                    </select>
+                    <div class="spa-icon-preview" id="spa_icon_preview">
+                        <?php if ($icon && file_exists($icons_dir . $icon)) : ?>
+                            <?php echo file_get_contents($icons_dir . $icon); ?>
+                        <?php else : ?>
+                            <span style="color:#999;">--</span>
                         <?php endif; ?>
                     </div>
+                    
+                    <!-- FAREBNÁ PALETA -->                        
+                    <?php if (!empty($svg_files)) : ?>
+                    <div class="spa-color-section">
+                        <div class="spa-color-group">
+                            <label>🎨 Primárna farba</label>
+                            <div class="spa-color-palette">
+                                <?php foreach ($spa_colors as $hex => $name): ?>
+                                    <div class="spa-color-option <?php echo ($icon_primary === $hex) ? 'selected' : ''; ?>" 
+                                        style="background-color: <?php echo esc_attr($hex); ?>;"
+                                        data-color="<?php echo esc_attr($hex); ?>"
+                                        title="<?php echo esc_attr($name); ?>">
+                                        <input type="radio" 
+                                            name="spa_icon_primary_color" 
+                                            value="<?php echo esc_attr($hex); ?>" 
+                                            <?php checked($icon_primary, $hex); ?>>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="spa-color-group">
+                            <label>🎨 Sekundárna farba</label>
+                            <div class="spa-color-palette">
+                                <?php foreach ($spa_colors as $hex => $name): ?>
+                                    <div class="spa-color-option <?php echo ($icon_secondary === $hex) ? 'selected' : ''; ?>" 
+                                        style="background-color: <?php echo esc_attr($hex); ?>;"
+                                        data-color="<?php echo esc_attr($hex); ?>"
+                                        title="<?php echo esc_attr($name); ?>">
+                                        <input type="radio" 
+                                            name="spa_icon_secondary_color" 
+                                            value="<?php echo esc_attr($hex); ?>" 
+                                            <?php checked($icon_secondary, $hex); ?>>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         </div>
+    </div>
     
     <div class="spa-section">
         <h4>🤸 Základné informácie</h4>
@@ -243,7 +244,8 @@ function spa_group_meta_box($post) {
             <?php endforeach; ?>
         </div>
         <p class="spa-help" style="margin-top: 10px;">Vyberte trénerov, ktorí vedú tento program</p>
-    </div>       
+    </div>   
+    
     
     <script>
         (function() {
@@ -716,7 +718,7 @@ function spa_save_attendance_meta($post_id, $post) {
    ============================================================ */
 
 add_action('wp_ajax_spa_load_icon', 'spa_ajax_load_icon');
-add_action('wp_ajax_nopriv_spa_load_icon', 'spa_ajax_load_icon');
+// add_action('wp_ajax_nopriv_spa_load_icon', 'spa_ajax_load_icon');
 function spa_ajax_load_icon() {
     if (!isset($_POST['icon']) || empty($_POST['icon'])) {
         wp_send_json(['success' => false, 'error' => 'Ikona nie je zadaná']);
