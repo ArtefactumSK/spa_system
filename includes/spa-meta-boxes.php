@@ -523,6 +523,7 @@ function spa_place_meta_box($post) {
    ============================================================ */
 
 // DETAILY PROGRAMU (spa_group)
+/* 
 add_action('save_post_spa_group', 'spa_save_group_details_meta', 10, 2);
 function spa_save_group_details_meta($post_id, $post) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
@@ -556,7 +557,7 @@ function spa_save_group_details_meta($post_id, $post) {
     update_post_meta($post_id, 'spa_trainers', $trainers);  
 
 }
-
+ */
 // ROZVRH PROGRAMU (spa_group)
 add_action('save_post_spa_group', 'spa_save_group_schedule_meta', 11, 2);
 function spa_save_group_schedule_meta($post_id, $post) {
@@ -749,7 +750,48 @@ function spa_ajax_load_icon() {
    ============================================================ */
 
    add_action('save_post_spa_group', 'spa_save_group_meta_data', 10, 2);
-   function spa_save_group_meta_data($post_id, $post) {
+   function spa_save_group_details_meta($post_id, $post) {
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!isset($_POST['spa_group_nonce']) || !wp_verify_nonce($_POST['spa_group_nonce'], 'spa_save_group_details')) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+    
+    $fields = ['spa_place_id', 'spa_capacity', 'spa_registration_type', 'spa_level', 'spa_icon'];
+    foreach ($fields as $field) {
+        if (isset($_POST[$field])) {
+            $value = ($field === 'spa_place_id' || $field === 'spa_capacity') 
+                ? intval($_POST[$field]) 
+                : sanitize_text_field($_POST[$field]);
+            update_post_meta($post_id, $field, $value);
+        }
+    }
+    
+    // Vekové hodnoty - prijmi čiarku aj bodku
+    if (isset($_POST['spa_age_from'])) {
+        $age = floatval(str_replace(',', '.', $_POST['spa_age_from']));
+        update_post_meta($post_id, 'spa_age_from', $age);
+    }
+    if (isset($_POST['spa_age_to'])) {
+        $age = floatval(str_replace(',', '.', $_POST['spa_age_to']));
+        update_post_meta($post_id, 'spa_age_to', $age);
+    }
+    
+    // Tréneri (pole)
+    $trainers = isset($_POST['spa_trainers']) && is_array($_POST['spa_trainers']) 
+        ? array_map('intval', $_POST['spa_trainers']) 
+        : [];
+    update_post_meta($post_id, 'spa_trainers', $trainers);
+    
+    // ✅ PRIDANÉ: Primárna farba
+    if (isset($_POST['spa_icon_primary_color'])) {
+        update_post_meta($post_id, 'spa_icon_primary_color', sanitize_hex_color($_POST['spa_icon_primary_color']));
+    }
+    
+    // ✅ PRIDANÉ: Sekundárna farba
+    if (isset($_POST['spa_icon_secondary_color'])) {
+        update_post_meta($post_id, 'spa_icon_secondary_color', sanitize_hex_color($_POST['spa_icon_secondary_color']));
+    }
+}
+   /* function spa_save_group_meta_data($post_id, $post) {
        
        // Security check
        if (!isset($_POST['spa_group_nonce']) || !wp_verify_nonce($_POST['spa_group_nonce'], 'spa_save_group')) {
@@ -810,4 +852,4 @@ function spa_ajax_load_icon() {
        } else {
            delete_post_meta($post_id, 'spa_trainer_ids');
        }
-   }
+   } */
