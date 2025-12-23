@@ -243,42 +243,54 @@ function spa_group_meta_box($post) {
     
     
     <script>
-    (function() {
-        var select = document.getElementById('spa_icon_select');
-        var preview = document.getElementById('spa_icon_preview');
-        
-        if (!select || !preview) return;
-        
-        select.addEventListener('change', function() {
-            if (!this.value) {
-                preview.innerHTML = '<span style="color:#999; font-size:12px;">--</span>';
-                return;
-            }
+        (function() {
+            var select = document.getElementById('spa_icon_select');
+            var preview = document.getElementById('spa_icon_preview');
             
-            var iconFile = this.value;
-            var ajaxUrl = '<?php echo admin_url('admin-ajax.php'); ?>';
+            if (!select || !preview) return;
             
-            fetch(ajaxUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=spa_load_icon&icon=' + encodeURIComponent(iconFile)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.svg) {
-                    preview.innerHTML = data.svg;
-                } else {
-                    preview.innerHTML = '<span style="color:#d63638; font-size:12px;">Chyba</span>';
+            select.addEventListener('change', function() {
+                if (!this.value) {
+                    preview.innerHTML = '<span style="color:#999; font-size:12px;">--</span>';
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                preview.innerHTML = '<span style="color:#d63638; font-size:12px;">Chyba</span>';
+                
+                var iconFile = this.value;
+                var ajaxUrl = '<?php echo admin_url('admin-ajax.php'); ?>';
+                
+                fetch(ajaxUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=spa_load_icon&icon=' + encodeURIComponent(iconFile)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.svg) {
+                        preview.innerHTML = data.svg;
+                    } else {
+                        preview.innerHTML = '<span style="color:#d63638; font-size:12px;">Chyba</span>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    preview.innerHTML = '<span style="color:#d63638; font-size:12px;">Chyba</span>';
+                });
             });
-        });
-    })();
+            
+            // COLOR PICKER
+            var colorOptions = document.querySelectorAll('.spa-color-option');
+            colorOptions.forEach(function(option) {
+                option.addEventListener('click', function() {
+                    var siblings = this.parentElement.querySelectorAll('.spa-color-option');
+                    siblings.forEach(function(sib) { sib.classList.remove('selected'); });
+                    this.classList.add('selected');
+                    var radio = this.querySelector('input[type="radio"]');
+                    if (radio) radio.checked = true;
+                });
+            });
+        })();
     </script>
     <?php
 }
@@ -761,3 +773,71 @@ function spa_ajax_load_icon() {
     echo json_encode(['success' => true, 'svg' => $svg_content]);
     wp_die();
 }
+
+/* ============================================================
+   SAVE: Uloženie meta dát programu
+   ============================================================ */
+
+   add_action('save_post_spa_group', 'spa_save_group_meta_data', 10, 2);
+   function spa_save_group_meta_data($post_id, $post) {
+       
+       // Security check
+       if (!isset($_POST['spa_group_nonce']) || !wp_verify_nonce($_POST['spa_group_nonce'], 'spa_save_group')) {
+           return;
+       }
+       
+       if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+           return;
+       }
+       
+       if (!current_user_can('edit_post', $post_id)) {
+           return;
+       }
+       
+       // Ikona
+       if (isset($_POST['spa_icon'])) {
+           update_post_meta($post_id, 'spa_icon', sanitize_text_field($_POST['spa_icon']));
+       }
+       
+       // Primárna farba
+       if (isset($_POST['spa_icon_primary_color'])) {
+           update_post_meta($post_id, 'spa_icon_primary_color', sanitize_hex_color($_POST['spa_icon_primary_color']));
+       }
+       
+       // Sekundárna farba
+       if (isset($_POST['spa_icon_secondary_color'])) {
+           update_post_meta($post_id, 'spa_icon_secondary_color', sanitize_hex_color($_POST['spa_icon_secondary_color']));
+       }
+       
+       // Cena
+       if (isset($_POST['spa_price'])) {
+           $price = str_replace(',', '.', $_POST['spa_price']);
+           update_post_meta($post_id, 'spa_price', floatval($price));
+       }
+       
+       // Kapacita
+       if (isset($_POST['spa_capacity'])) {
+           update_post_meta($post_id, 'spa_capacity', intval($_POST['spa_capacity']));
+       }
+       
+       // Rozvrh (JSON)
+       if (isset($_POST['spa_schedule']) && is_array($_POST['spa_schedule'])) {
+           $schedule = array();
+           foreach ($_POST['spa_schedule'] as $row) {
+               $day = sanitize_text_field($row['day']);
+               $time = sanitize_text_field($row['time']);
+               if (!empty($day) || !empty($time)) {
+                   $schedule[] = array('day' => $day, 'time' => $time);
+               }
+           }
+           update_post_meta($post_id, 'spa_schedule', wp_json_encode($schedule));
+       }
+       
+       // Trenéri (array)
+       if (isset($_POST['spa_trainer_ids'])) {
+           $trainer_ids = array_map('intval', $_POST['spa_trainer_ids']);
+           update_post_meta($post_id, 'spa_trainer_ids', $trainer_ids);
+       } else {
+           delete_post_meta($post_id, 'spa_trainer_ids');
+       }
+   }
