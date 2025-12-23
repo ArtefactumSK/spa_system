@@ -106,18 +106,56 @@ function spa_group_meta_box($post) {
                                 <?php echo esc_html($name); ?>
                             </option>
                         <?php endforeach; ?>
-                    </select>
-                    <div class="spa-icon-preview" id="spa_icon_preview">
-                        <?php if ($icon && file_exists($icons_dir . $icon)) : ?>
-                            <?php echo file_get_contents($icons_dir . $icon); ?>
-                        <?php else : ?>
-                            <span style="color:#999; font-size:12px;">--</span>
-                        <?php endif; ?>
-                    </div>
-                <?php endif; ?>
+                        </select>
+                        <div class="spa-icon-preview" id="spa_icon_preview">
+                            <?php if ($icon && file_exists($svg_dir . $icon)) : ?>
+                                <?php echo file_get_contents($svg_dir . $icon); ?>
+                            <?php else : ?>
+                                <span style="color:#999;">--</span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- FAREBNÁ PALETA -->
+                        <div class="spa-color-section">
+                            <div class="spa-color-group">
+                                <label>🎨 Primárna farba</label>
+                                <div class="spa-color-palette">
+                                    <?php foreach ($spa_colors as $hex => $name): ?>
+                                        <div class="spa-color-option <?php echo ($icon_primary === $hex) ? 'selected' : ''; ?>" 
+                                            style="background-color: <?php echo esc_attr($hex); ?>;"
+                                            data-color="<?php echo esc_attr($hex); ?>"
+                                            title="<?php echo esc_attr($name); ?>">
+                                            <input type="radio" 
+                                                name="spa_icon_primary_color" 
+                                                value="<?php echo esc_attr($hex); ?>" 
+                                                <?php checked($icon_primary, $hex); ?>>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                            
+                            <div class="spa-color-group">
+                                <label>🎨 Sekundárna farba</label>
+                                <div class="spa-color-palette">
+                                    <?php foreach ($spa_colors as $hex => $name): ?>
+                                        <div class="spa-color-option <?php echo ($icon_secondary === $hex) ? 'selected' : ''; ?>" 
+                                            style="background-color: <?php echo esc_attr($hex); ?>;"
+                                            data-color="<?php echo esc_attr($hex); ?>"
+                                            title="<?php echo esc_attr($name); ?>">
+                                            <input type="radio" 
+                                                name="spa_icon_secondary_color" 
+                                                value="<?php echo esc_attr($hex); ?>" 
+                                                <?php checked($icon_secondary, $hex); ?>>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
     
     <div class="spa-section">
         <h4>🤸 Základné informácie</h4>
@@ -517,6 +555,24 @@ function spa_save_group_details_meta($post_id, $post) {
         ? array_map('intval', $_POST['spa_trainers']) 
         : [];
     update_post_meta($post_id, 'spa_trainers', $trainers);
+
+    // SPA Color Palette
+    $spa_colors = array(
+        '#005de8' => 'Olympic blue',
+        '#00C853' => 'Olympic green',
+        '#FF1439' => 'Olympic red',
+        '#FFB81C' => 'Olympic yellow',
+        '#000000' => 'Olympic black',
+        '#f2f5f7' => 'Light grey',
+        '#FAFBFC' => 'Smart grey',
+        '#ffffff' => 'White',
+        '#A7E9E9' => 'Tyrkys',
+        '#E3F2FD' => 'Pastel blue',
+        '#87C9FF' => 'Light blue',
+        '#FF9AA2' => 'Pinky',
+        '#a855f7' => 'Lila'
+    );
+
 }
 
 // ROZVRH PROGRAMU (spa_group)
