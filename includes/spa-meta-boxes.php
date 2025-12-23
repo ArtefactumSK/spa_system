@@ -20,7 +20,8 @@ function spa_add_all_meta_boxes() {
     add_meta_box('spa_group_schedule', '📅 Rozvrh programu', 'spa_group_schedule_meta_box', 'spa_group', 'normal', 'high');
     add_meta_box('spa_group_pricing', '💳 Cenník programu', 'spa_group_pricing_meta_box', 'spa_group', 'normal', 'high');
     
-    // REGISTRÁCIE    
+    // REGISTRÁCIE
+    
     add_meta_box('spa_registration_details', '📋 Detaily registrácie', 'spa_registration_details_callback', 'spa_registration', 'normal', 'high');
     
     // MIESTA (spa_place)
