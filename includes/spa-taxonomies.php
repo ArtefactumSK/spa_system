@@ -88,16 +88,26 @@ function spa_place_schedule_meta_box($term) {
     
     global $wpdb;
     
-    // Hľadaj programy kde spa_place_id = term_id TOHTO miesta
+    // Hľadaj programy kde spa_place_id = term_id
     $program_ids = $wpdb->get_col($wpdb->prepare(
         "SELECT post_id FROM {$wpdb->postmeta} 
          WHERE meta_key = 'spa_place_id' AND meta_value = %d",
-        $term->term_id  // ✅ Používa term_id, nie slug
+        $term->term_id
     ));
     
     if (empty($program_ids)) {
-        echo '<tr class="form-field"><th scope="row"><h2>📅 Rozvrh miesta</h2></th>';
-        echo '<td><p style="color:#999;">Pre toto miesto nie sú priradené žiadne programy.</p></td></tr>';
+        ?>
+        <tr class="form-field">
+            <th scope="row"><h2>📅 Rozvrh miesta</h2></th>
+            <td>
+                <p style="color:#999;">Pre toto miesto nie sú priradené žiadne programy.</p>
+                <p style="color:#666;font-size:12px;">
+                    Term ID: <?php echo $term->term_id; ?><br>
+                    Term Name: <?php echo $term->name; ?>
+                </p>
+            </td>
+        </tr>
+        <?php
         return;
     }
     
@@ -136,7 +146,9 @@ function spa_place_schedule_meta_box($term) {
     <tr class="form-field">
         <th scope="row" style="vertical-align:top;padding-top:15px;">
             <h2 style="margin:0;">📅 Rozvrh miesta</h2>
-            <p style="font-weight:normal;color:#666;margin:5px 0 0;">Automaticky z <?php echo count($programs); ?> programov</p>
+            <p style="font-weight:normal;color:#666;margin:5px 0 0;">
+                <?php echo count($programs); ?> <?php echo count($programs) == 1 ? 'program' : 'programov'; ?>
+            </p>
         </th>
         <td>
             <style>
@@ -178,7 +190,7 @@ function spa_place_schedule_meta_box($term) {
    MIGRÁCIA: Starý spa_place CPT → Nová taxonomia
    ========================== */
 
-   add_action('admin_init', 'spa_migrate_place_meta_once');
+   /* add_action('admin_init', 'spa_migrate_place_meta_once');
 
    function spa_migrate_place_meta_once() {
        
@@ -217,4 +229,4 @@ function spa_place_schedule_meta_box($term) {
        
        wp_redirect(admin_url('edit-tags.php?taxonomy=spa_place'));
        exit;
-   }
+   } */

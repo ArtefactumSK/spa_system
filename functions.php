@@ -417,3 +417,9 @@ function spa_block_test_emails($null, $atts) {
     
     return $null; // Normálne pokračovanie
 }
+
+
+add_action('init', function() {
+    flush_rewrite_rules();
+    delete_option('spa_place_meta_migrated'); // Vymaž migračný flag
+}, 999);
