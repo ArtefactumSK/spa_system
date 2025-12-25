@@ -2,55 +2,54 @@
 /**
  * spa-cpt.php
  * Registrácia CPT používaných v SPA module
- * @package Samuel Piasecký ACADEMY
- * @version 3.0.1 - FIXED DUPLICATES
+ * @version 2.1.0 - ČISTÁ: admin columns presunuté do spa-admin-columns.php
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-/* -------------------------------------------
-   CPT: Skupiny tréningov
--------------------------------------------- */
+/* ============================================================
+   CPT: spa_group (Programy/Skupiny tréningov)
+   ============================================================ */
 add_action('init', 'spa_register_cpt_groups');
 function spa_register_cpt_groups() {
     $labels = array(
-        'name'               => 'Skupiny tréningov',
-        'singular_name'      => 'Skupina',
-        'menu_name'          => 'Skupiny tréningov',
-        'add_new'            => 'Pridať skupinu',
-        'add_new_item'       => 'Pridať novú skupinu',
-        'edit_item'          => 'Upraviť skupinu',
-        'new_item'           => 'Nová skupina',
-        'view_item'          => 'Zobraziť skupinu',
-        'search_items'       => 'Hľadať skupiny',
-        'not_found'          => 'Žiadne skupiny nenájdené',
-        'not_found_in_trash' => 'Žiadne skupiny v koši'
+        'name'               => '🤸 Programy',
+        'singular_name'      => 'Program',
+        'menu_name'          => 'SPA Programy',
+        'add_new'            => 'Pridať program',
+        'add_new_item'       => 'Pridať nový program',
+        'edit_item'          => 'Upraviť program',
+        'new_item'           => 'Nový program',
+        'view_item'          => 'Zobraziť program',
+        'search_items'       => 'Hľadať programy',
+        'not_found'          => 'Žiadne programy nenájdené',
+        'not_found_in_trash' => 'Žiadne programy v koši'
     );
 
     register_post_type('spa_group', array(
         'labels'            => $labels,
         'public'            => false,
         'show_ui'           => true,
-        'menu_icon'         => 'dashicons-groups',
+        'menu_icon'         => 'dashicons-universal-access-alt',
         'menu_position'     => 20,
         'hierarchical'      => false,
-        'supports'          => array('title'),
+        'supports'          => array('title', 'editor'),
         'capability_type'   => 'post',
         'show_in_rest'      => false,
     ));
 }
 
-/* -------------------------------------------
-   CPT: Registrácie
--------------------------------------------- */
+/* ============================================================
+   CPT: spa_registration (Registrácie)
+   ============================================================ */
 add_action('init', 'spa_register_cpt_registrations');
 function spa_register_cpt_registrations() {
     $labels = array(
-        'name'               => 'Registrácie',
+        'name'               => '📋 Registrácie',
         'singular_name'      => 'Registrácia',
-        'menu_name'          => 'Registrácie',
+        'menu_name'          => 'SPA Registrácie',
         'add_new'            => 'Pridať registráciu',
         'add_new_item'       => 'Pridať novú registráciu',
         'edit_item'          => 'Upraviť registráciu',
@@ -75,85 +74,46 @@ function spa_register_cpt_registrations() {
     ));
 }
 
-/* -------------------------------------------
-   CPT: Obsadenosť hál
--------------------------------------------- */
-add_action('init', 'spa_register_cpt_hall_blocks');
-function spa_register_cpt_hall_blocks() {
+/* ============================================================
+   CPT: spa_place (Miesto)
+   ============================================================ */
+add_action('init', 'spa_register_cpt_place');
+function spa_register_cpt_place() {
     $labels = array(
-        'name'          => 'Obsadenosť hál',
-        'singular_name' => 'Rezervácia haly',
-        'menu_name'     => 'Obsadenosť hál',
-        'add_new'       => 'Pridať rezerváciu',
-        'add_new_item'  => 'Pridať novú rezerváciu',
-        'edit_item'     => 'Upraviť rezerváciu',
-        'search_items'  => 'Hľadať rezervácie'
+        'name'               => '📍 Miesta',
+        'singular_name'      => 'Miesto',
+        'menu_name'          => 'SPA Miesta',
+        'add_new'            => 'Pridať miesto',
+        'add_new_item'       => 'Pridať nové miesto',
+        'edit_item'          => 'Upraviť miesto',
+        'new_item'           => 'Nové miesto',
+        'view_item'          => 'Zobraziť miesto',
+        'search_items'       => 'Hľadať miesta',
+        'not_found'          => 'Žiadne miesta nenájdené',
+        'not_found_in_trash' => 'Žiadne miesta v koši',
+        'all_items'          => 'Všetky miesta'
     );
 
-    register_post_type('spa_hall_block', array(
+    register_post_type('spa_place', array(
         'labels'            => $labels,
         'public'            => false,
         'show_ui'           => true,
-        'menu_icon'         => 'dashicons-calendar-alt',
-        'menu_position'     => 22,
+        'menu_icon'         => 'dashicons-location',
+        'menu_position'     => 24,
         'hierarchical'      => false,
         'supports'          => array('title'),
         'capability_type'   => 'post',
-        'capabilities'      => array(
-            'edit_post'    => 'edit_posts',
-            'delete_post'  => 'delete_posts',
-            'edit_posts'   => 'edit_posts',
-            'publish_posts'=> 'publish_posts',
-        ),
-        'show_in_rest' => false,
+        'show_in_rest'      => false,
     ));
 }
 
-/* -------------------------------------------
-   CPT: Platby
--------------------------------------------- */
-add_action('init', 'spa_register_cpt_payments');
-function spa_register_cpt_payments() {
+/* ============================================================
+   CPT: spa_event (Udalosť/Blokovanie)
+   ============================================================ */
+add_action('init', 'spa_register_cpt_event');
+function spa_register_cpt_event() {
     $labels = array(
-        'name'               => 'Platby',
-        'singular_name'      => 'Platba',
-        'menu_name'          => 'Platby',
-        'add_new'            => 'Pridať platbu',
-        'add_new_item'       => 'Pridať novú platbu',
-        'edit_item'          => 'Upraviť platbu',
-        'view_item'          => 'Zobraziť platbu',
-        'search_items'       => 'Hľadať platby',
-        'not_found'          => 'Žiadne platby nenájdené',
-        'all_items'          => 'Všetky platby'
-    );
-
-    register_post_type('spa_payment', array(
-        'labels'            => $labels,
-        'public'            => false,
-        'show_ui'           => true,
-        'menu_icon'         => 'dashicons-money-alt',
-        'menu_position'     => 23,
-        'hierarchical'      => false,
-        'supports'          => array('title'),
-        'capability_type'   => 'post',
-        'capabilities'      => array(
-            'edit_post'    => 'edit_spa_payments',
-            'edit_posts'   => 'edit_spa_payments',
-            'publish_posts'=> 'edit_spa_payments',
-            'read_post'    => 'view_spa_payments',
-        ),
-        'map_meta_cap' => true,
-        'show_in_rest' => false,
-    ));
-}
-
-/* -------------------------------------------
-   CPT: Udalosti
--------------------------------------------- */
-add_action('init', 'spa_register_cpt_events');
-function spa_register_cpt_events() {
-    $labels = array(
-        'name'               => 'SPA Udalosti',
+        'name'               => '📅 Udalosti',
         'singular_name'      => 'Udalosť',
         'menu_name'          => 'SPA Udalosti',
         'add_new'            => 'Pridať udalosť',
@@ -171,19 +131,107 @@ function spa_register_cpt_events() {
         'labels'            => $labels,
         'public'            => false,
         'show_ui'           => true,
-        'menu_icon'         => 'dashicons-calendar',
-        'menu_position'     => 24,
+        'menu_icon'         => 'dashicons-calendar-alt',
+        'menu_position'     => 25,
+        'hierarchical'      => false,
+        'supports'          => array('title', 'editor'),
+        'capability_type'   => 'post',
+        'show_in_rest'      => false,
+    ));
+}
+
+/* ============================================================
+   CPT: spa_attendance (Dochádzka)
+   ============================================================ */
+add_action('init', 'spa_register_cpt_attendance');
+function spa_register_cpt_attendance() {
+    $labels = array(
+        'name'               => '✅ Dochádzka',
+        'singular_name'      => 'Záznam dochádzky',
+        'menu_name'          => 'SPA Dochádzka',
+        'add_new'            => 'Pridať záznam',
+        'add_new_item'       => 'Pridať záznam dochádzky',
+        'edit_item'          => 'Upraviť záznam',
+        'search_items'       => 'Hľadať záznamy',
+        'not_found'          => 'Žiadne záznamy nenájdené',
+        'all_items'          => 'Všetky záznamy'
+    );
+
+    register_post_type('spa_attendance', array(
+        'labels'            => $labels,
+        'public'            => false,
+        'show_ui'           => true,
+        'menu_icon'         => 'dashicons-yes-alt',
+        'menu_position'     => 26,
         'hierarchical'      => false,
         'supports'          => array('title'),
         'capability_type'   => 'post',
         'show_in_rest'      => false,
-        'taxonomies'        => array('spa_place')
     ));
 }
 
-/* ==========================
-   MENU: Zmena "Pridať registráciu"
-   ========================== */
+/* ============================================================
+   CPT: spa_payment (Platby)
+   ============================================================ */
+add_action('init', 'spa_register_cpt_payments');
+function spa_register_cpt_payments() {
+    $labels = array(
+        'name'               => '💳 Platby',
+        'singular_name'      => 'Platba',
+        'menu_name'          => 'SPA Platby',
+        'add_new'            => 'Pridať platbu',
+        'add_new_item'       => 'Pridať novú platbu',
+        'edit_item'          => 'Upraviť platbu',
+        'view_item'          => 'Zobraziť platbu',
+        'search_items'       => 'Hľadať platby',
+        'not_found'          => 'Žiadne platby nenájdené',
+        'all_items'          => 'Všetky platby'
+    );
+
+    register_post_type('spa_payment', array(
+        'labels'            => $labels,
+        'public'            => false,
+        'show_ui'           => true,
+        'menu_icon'         => 'dashicons-money-alt',
+        'menu_position'     => 27,
+        'hierarchical'      => false,
+        'supports'          => array('title'),
+        'capability_type'   => 'post',
+        'show_in_rest'      => false,
+    ));
+}
+
+/* ============================================================
+   CPT: spa_hall_block (Obsadenosť hál - deprecated)
+   ============================================================ */
+add_action('init', 'spa_register_cpt_hall_blocks');
+function spa_register_cpt_hall_blocks() {
+    $labels = array(
+        'name'          => '🏟️ Obsadenosť telocvičien',
+        'singular_name' => 'Rezervácia telocvične',
+        'menu_name'     => 'SPA telocvične',
+        'add_new'       => 'Pridať rezerváciu',
+        'add_new_item'  => 'Rezervovať telocvičňu',
+        'edit_item'     => 'Upraviť rezerváciu',
+        'search_items'  => 'Hľadať rezervácie'
+    );
+
+    register_post_type('spa_hall_block', array(
+        'labels'            => $labels,
+        'public'            => false,
+        'show_ui'           => true,
+        'show_in_menu'      => false,
+        'menu_position'     => 28,
+        'hierarchical'      => false,
+        'supports'          => array('title'),
+        'capability_type'   => 'post',
+        'show_in_rest'      => false,
+    ));
+}
+
+/* ============================================================
+   MENU: Zmena "Pridať registráciu" na externý link
+   ============================================================ */
 
 add_action('admin_menu', 'spa_fix_registration_submenu', 999);
 function spa_fix_registration_submenu() {
@@ -203,12 +251,8 @@ function spa_fix_registration_submenu() {
         'Pridať registráciu',
         'edit_posts',
         'spa-add-registration-redirect',
-        'spa_add_registration_redirect_page'
+        '__return_null'
     );
-}
-
-function spa_add_registration_redirect_page() {
-    // Prázdne
 }
 
 add_action('admin_init', 'spa_handle_registration_redirect');
@@ -221,19 +265,18 @@ function spa_handle_registration_redirect() {
 
 add_action('admin_footer', 'spa_registration_menu_target_blank');
 function spa_registration_menu_target_blank() {
+    $url = esc_url(home_url('/registracia/'));
     ?>
     <script type="text/javascript">
     (function() {
         var links = document.querySelectorAll('a[href*="spa-add-registration-redirect"]');
         links.forEach(function(link) {
-            link.setAttribute('href', '<?php echo esc_url(home_url('/registracia/')); ?>');
+            link.setAttribute('href', '<?php echo $url; ?>');
             link.setAttribute('target', '_blank');
-            link.setAttribute('rel', 'noopener');
         });
-        
-        var addBtn = document.querySelector('.page-title-action');
-        if (addBtn && addBtn.textContent.indexOf('Pridať') !== -1) {
-            addBtn.setAttribute('href', '<?php echo esc_url(home_url('/registracia/')); ?>');
+        var addBtn = document.querySelector('.page-title-action[href*="post-new.php?post_type=spa_registration"]');
+        if (addBtn) {
+            addBtn.setAttribute('href', '<?php echo $url; ?>');
             addBtn.setAttribute('target', '_blank');
         }
     })();
