@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 /* ============================================================
    CPT: spa_group (Programy/Skupiny tréningov)
    ============================================================ */
-add_action('init', 'spa_register_cpt_groups');
+/* add_action('init', 'spa_register_cpt_groups');
 function spa_register_cpt_groups() {
     $labels = array(
         'name'               => '🤸 Programy',
@@ -39,7 +39,7 @@ function spa_register_cpt_groups() {
         'capability_type'   => 'post',
         'show_in_rest'      => false,
     ));
-}
+} */
 
 /* ============================================================
    CPT: spa_registration (Registrácie)
