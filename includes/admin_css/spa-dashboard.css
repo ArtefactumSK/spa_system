@@ -272,15 +272,15 @@
 .spa-edit-box {
     margin-top: 25px;
     padding: 20px;
-    background: #fff8e5;
-    border: 2px solid #f0ad4e;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
     border-radius: 8px;
     max-width: 700px;
 }
 
 .spa-edit-box h4 {
     margin: 0 0 15px 0;
-    color: #856404;
+    color: var(--theme-palette-color-5);
     font-size: 16px;
 }
 

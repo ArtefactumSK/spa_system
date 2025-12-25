@@ -116,10 +116,10 @@ function spa_add_all_meta_boxes() {
                     <?php if ($client): ?>
                         <strong><?php echo esc_html($client_name); ?></strong>
                         <?php if ($birthdate): ?>
-                            <br><small>Dátum narodenia: <?php echo esc_html($birthdate); ?></small>
+                            <br><small>Dátum narodenia: <strong><?php echo esc_html(date('d.m.Y', strtotime($birthdate))); ?></strong></small>
                         <?php endif; ?>
                         <?php if ($rodne_cislo): ?>
-                            <br><small>Rodné číslo: <?php echo esc_html($rodne_cislo); ?></small>
+                            <br><small>Rodné číslo: <strong><?php echo esc_html($rodne_cislo); ?></strong></small>
                         <?php endif; ?>
                         <br><a href="<?php echo get_edit_user_link($client_id); ?>" target="_blank" class="button button-small spa-btn-edit">Upraviť profil →</a>
                     <?php else: ?>
@@ -144,9 +144,9 @@ function spa_add_all_meta_boxes() {
                 <td>
                     <?php if ($parent): ?>
                         <strong><?php echo esc_html($parent_name); ?></strong><br>
-                        <small>Email: <?php echo esc_html($parent->user_email); ?></small>
+                        <small>E-mail: <a href="mailto:<?php echo esc_html($parent->user_email); ?>"><?php echo esc_html($parent->user_email); ?></a></small>
                         <?php if ($phone): ?>
-                            <br><small>Telefón: <?php echo esc_html($phone); ?></small>
+                            <br><small>Telefón: <a href="tel:<?php echo esc_html($phone); ?>"><?php echo esc_html($phone); ?></a></small>
                         <?php endif; ?>
                         <br><a href="<?php echo get_edit_user_link($parent_id); ?>" target="_blank" class="button button-small spa-btn-edit">Upraviť profil →</a>
                     <?php else: ?>
@@ -170,7 +170,7 @@ function spa_add_all_meta_boxes() {
         
         <!-- EDITOVATEĽNÉ POLIA -->
         <div class="spa-edit-box">
-            <h4>⚙️ Úprava registrácie</h4>
+            <h4>⚙️ Úprava registrácie - tréningového programu</h4>
             
             <p>
                 <label><strong>Program:</strong></label><br>
