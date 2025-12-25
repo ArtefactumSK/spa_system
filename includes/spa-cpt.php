@@ -201,6 +201,40 @@ function spa_register_cpt_payments() {
     ));
 }
 
+/* -------------------------------------------
+   CPT: Udalosti
+-------------------------------------------- */
+add_action('init', 'spa_register_cpt_events');
+function spa_register_cpt_events() {
+    $labels = array(
+        'name'               => 'SPA Udalosti',
+        'singular_name'      => 'Udalosť',
+        'menu_name'          => 'SPA Udalosti',
+        'add_new'            => 'Pridať udalosť',
+        'add_new_item'       => 'Pridať novú udalosť',
+        'edit_item'          => 'Upraviť udalosť',
+        'new_item'           => 'Nová udalosť',
+        'view_item'          => 'Zobraziť udalosť',
+        'search_items'       => 'Hľadať udalosti',
+        'not_found'          => 'Žiadne udalosti nenájdené',
+        'not_found_in_trash' => 'Žiadne udalosti v koši',
+        'all_items'          => 'Všetky udalosti'
+    );
+
+    register_post_type('spa_event', array(
+        'labels'            => $labels,
+        'public'            => false,
+        'show_ui'           => true,
+        'menu_icon'         => 'dashicons-calendar',
+        'menu_position'     => 24,
+        'hierarchical'      => false,
+        'supports'          => array('title'),
+        'capability_type'   => 'post',
+        'show_in_rest'      => false,
+        'taxonomies'        => array('spa_place')
+    ));
+}
+
 /* ============================================================
    CPT: spa_hall_block (Obsadenosť hál - deprecated)
    ============================================================ */
