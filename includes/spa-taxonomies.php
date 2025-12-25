@@ -82,12 +82,10 @@ add_action('after_switch_theme', 'spa_create_default_terms');
 
 function spa_create_default_terms() {
     
-    // Kontrola či už boli vytvorené
     if (get_option('spa_default_terms_created')) {
         return;
     }
     
-    // MIESTA
     $places = ['Malacky', 'Košice'];
     
     foreach ($places as $place) {
@@ -98,7 +96,6 @@ function spa_create_default_terms() {
         }
     }
     
-    // KATEGÓRIE
     $categories = [
         'Deti s rodičmi 1,8-3 roky',
         'Deti 3-4 roky',
@@ -116,7 +113,6 @@ function spa_create_default_terms() {
         }
     }
     
-    // Označ že boli vytvorené
     update_option('spa_default_terms_created', true);
 }
 
@@ -137,37 +133,50 @@ function spa_create_events_category() {
 }
 
 /* ==========================
-   META BOX: Rozvrh miesta (automatický)
+   META BOX: Rozvrh miesta
    ========================== */
 
 add_action('spa_place_edit_form_fields', 'spa_place_schedule_meta_box', 10, 2);
 
 function spa_place_schedule_meta_box($term) {
     
-    // Získaj všetky programy pre toto miesto
-    $programs = get_posts([
+    error_log('=== SPA PLACE SCHEDULE ===');
+    error_log('Term: ' . $term->name . ' (ID: ' . $term->term_id . ')');
+    
+    $args = [
         'post_type' => 'spa_group',
         'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'orderby' => 'menu_order title',
+        'order' => 'ASC',
         'tax_query' => [[
             'taxonomy' => 'spa_place',
             'field' => 'term_id',
             'terms' => $term->term_id
-        ]],
-        'orderby' => 'menu_order title',
-        'order' => 'ASC'
-    ]);
+        ]]
+    ];
+    
+    $programs = get_posts($args);
+    error_log('Found: ' . count($programs) . ' programs');
     
     if (empty($programs)) {
         ?>
         <tr class="form-field">
             <th scope="row"><h2>📅 Rozvrh miesta</h2></th>
-            <td><p style="color:#999;">Pre toto miesto nie sú priradené žiadne programy.</p></td>
+            <td>
+                <p style="color:#999;">Pre toto miesto nie sú priradené žiadne programy.</p>
+                <p style="color:#666;font-size:12px;margin-top:10px;">
+                    <strong>Debug info:</strong><br>
+                    Term ID: <?php echo $term->term_id; ?><br>
+                    Term Name: <?php echo $term->name; ?><br>
+                    Term Slug: <?php echo $term->slug; ?>
+                </p>
+            </td>
         </tr>
         <?php
         return;
     }
     
-    // Zozbieraj rozvrh z programov
     $schedule_by_day = [];
     $days_map = [
         'monday' => 'Pondelok',
@@ -202,7 +211,6 @@ function spa_place_schedule_meta_box($term) {
         }
     }
     
-    // Zoraď podľa času
     foreach ($schedule_by_day as &$day_schedule) {
         usort($day_schedule, function($a, $b) {
             return strcmp($a['time'], $b['time']);
@@ -213,7 +221,9 @@ function spa_place_schedule_meta_box($term) {
     <tr class="form-field">
         <th scope="row" style="vertical-align:top; padding-top:15px;">
             <h2 style="margin:0;">📅 Rozvrh miesta</h2>
-            <p style="font-weight:normal;color:#666;margin:5px 0 0 0;">Automaticky generovaný z programov</p>
+            <p style="font-weight:normal;color:#666;margin:5px 0 0 0;">
+                Automaticky generovaný z <?php echo count($programs); ?> programov
+            </p>
         </th>
         <td>
             <style>
@@ -254,8 +264,20 @@ function spa_place_schedule_meta_box($term) {
             </table>
             
             <p style="margin-top:15px;padding:10px;background:#e7f3ff;border-left:3px solid #0073aa;border-radius:3px;">
-                ℹ️ <strong>Poznámka:</strong> Rozvrh sa automaticky aktualizuje podľa pridelených programov k tomuto miestu.
+                ℹ️ <strong>Poznámka:</strong> Rozvrh sa automaticky aktualizuje podľa pridelených programov.
             </p>
+            
+            <details style="margin-top:10px;">
+                <summary style="cursor:pointer;color:#666;">🔍 Debug info</summary>
+                <pre style="background:#f5f5f5;padding:10px;margin-top:5px;font-size:11px;overflow:auto;">
+Term: <?php echo $term->name; ?> (ID: <?php echo $term->term_id; ?>)
+Programy: <?php echo count($programs); ?>
+
+<?php foreach ($programs as $p) : ?>
+- <?php echo $p->post_title; ?> (ID: <?php echo $p->ID; ?>)
+<?php endforeach; ?>
+                </pre>
+            </details>
         </td>
     </tr>
     <?php
