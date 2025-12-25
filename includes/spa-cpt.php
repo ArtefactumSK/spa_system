@@ -318,68 +318,36 @@ function spa_register_cpt_events() {
     ));
 }
 
-/* ==========================
-   ADMIN COLUMNS: Udalosti
-   ========================== */
+/* -------------------------------------------
+   CPT: Udalosti
+-------------------------------------------- */
+add_action('init', 'spa_register_cpt_events');
+function spa_register_cpt_events() {
+    $labels = array(
+        'name'               => 'SPA Udalosti',
+        'singular_name'      => 'Udalosť',
+        'menu_name'          => 'SPA Udalosti',
+        'add_new'            => 'Pridať udalosť',
+        'add_new_item'       => 'Pridať novú udalosť',
+        'edit_item'          => 'Upraviť udalosť',
+        'new_item'           => 'Nová udalosť',
+        'view_item'          => 'Zobraziť udalosť',
+        'search_items'       => 'Hľadať udalosti',
+        'not_found'          => 'Žiadne udalosti nenájdené',
+        'not_found_in_trash' => 'Žiadne udalosti v koši',
+        'all_items'          => 'Všetky udalosti'
+    );
 
-add_filter('manage_spa_event_posts_columns', 'spa_event_columns');
-function spa_event_columns($columns) {
-    $new_columns = [
-        'cb' => $columns['cb'],
-        'title' => 'Názov udalosti',
-        'event_type' => '📌 Typ',
-        'event_dates' => '📅 Dátum',
-        'places' => '📍 Miesta',
-        'affects_training' => '⚠️ Ovplyvňuje tréningy',
-        'date' => 'Vytvorené'
-    ];
-    return $new_columns;
-}
-
-add_action('manage_spa_event_posts_custom_column', 'spa_event_column_content', 10, 2);
-function spa_event_column_content($column, $post_id) {
-    switch ($column) {
-        case 'event_type':
-            $type = get_post_meta($post_id, 'event_type', true);
-            $types = [
-                'holiday' => '🎄 Sviatok',
-                'special' => '⭐ Špeciálne',
-                'birthday' => '🎂 Narodeniny',
-                'camp' => '🏕️ Tábor'
-            ];
-            echo isset($types[$type]) ? $types[$type] : '—';
-            break;
-
-        case 'event_dates':
-            $date_from = get_post_meta($post_id, 'event_date_from', true);
-            $date_to = get_post_meta($post_id, 'event_date_to', true);
-            
-            if ($date_from && $date_to && $date_from !== $date_to) {
-                echo '<strong>' . esc_html($date_from) . '</strong> - <strong>' . esc_html($date_to) . '</strong>';
-            } elseif ($date_from) {
-                echo '<strong>' . esc_html($date_from) . '</strong>';
-            } else {
-                echo '<span style="color:#999;">—</span>';
-            }
-            break;
-
-        case 'places':
-            $places = get_the_terms($post_id, 'spa_place');
-            if ($places && !is_wp_error($places)) {
-                $names = wp_list_pluck($places, 'name');
-                echo esc_html(implode(', ', $names));
-            } else {
-                echo '<span style="color:#999;">Všetky</span>';
-            }
-            break;
-
-        case 'affects_training':
-            $affects = get_post_meta($post_id, 'affects_training', true);
-            if ($affects === 'yes') {
-                echo '<span style="color:#d63638;font-weight:600;">✖ Tréningy sa nekonajú</span>';
-            } else {
-                echo '<span style="color:#999;">—</span>';
-            }
-            break;
-    }
+    register_post_type('spa_event', array(
+        'labels'            => $labels,
+        'public'            => false,
+        'show_ui'           => true,
+        'menu_icon'         => 'dashicons-calendar',
+        'menu_position'     => 24,
+        'hierarchical'      => false,
+        'supports'          => array('title'),
+        'capability_type'   => 'post',
+        'show_in_rest'      => false,
+        'taxonomies'        => array('spa_place')
+    ));
 }
