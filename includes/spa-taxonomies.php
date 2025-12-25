@@ -88,10 +88,11 @@ function spa_place_schedule_meta_box($term) {
     
     global $wpdb;
     
+    // Hľadaj programy kde spa_place_id = term_id TOHTO miesta
     $program_ids = $wpdb->get_col($wpdb->prepare(
         "SELECT post_id FROM {$wpdb->postmeta} 
-         WHERE meta_key = 'spa_place_address' AND meta_value = %s",
-        $term->slug
+         WHERE meta_key = 'spa_place_id' AND meta_value = %d",
+        $term->term_id  // ✅ Používa term_id, nie slug
     ));
     
     if (empty($program_ids)) {
@@ -172,3 +173,48 @@ function spa_place_schedule_meta_box($term) {
     </tr>
     <?php
 }
+
+/* ==========================
+   MIGRÁCIA: Starý spa_place CPT → Nová taxonomia
+   ========================== */
+
+   add_action('admin_init', 'spa_migrate_place_meta_once');
+
+   function spa_migrate_place_meta_once() {
+       
+       if (get_option('spa_place_meta_migrated')) {
+           return; // Už bolo migrované
+       }
+       
+       global $wpdb;
+       
+       // Mapovanie: starý post_id → nový term_id
+       $mapping = [
+           678 => 27,  // Hala Basso (post) → Hala Basso (term)
+           // Pridaj ďalšie ak existujú
+       ];
+       
+       foreach ($mapping as $old_post_id => $new_term_id) {
+           
+           // Nájdi všetky programy s starým post_id
+           $programs = $wpdb->get_col($wpdb->prepare(
+               "SELECT post_id FROM {$wpdb->postmeta}
+                WHERE meta_key = 'spa_place_id' AND meta_value = %s",
+               $old_post_id
+           ));
+           
+           foreach ($programs as $program_id) {
+               
+               // Aktualizuj meta na nový term_id
+               update_post_meta($program_id, 'spa_place_id', $new_term_id);
+               
+               // ALEBO vytvor term relationship (ak chceš použiť taxonomiu natvrdo)
+               wp_set_object_terms($program_id, [$new_term_id], 'spa_place', false);
+           }
+       }
+       
+       update_option('spa_place_meta_migrated', true);
+       
+       wp_redirect(admin_url('edit-tags.php?taxonomy=spa_place'));
+       exit;
+   }
