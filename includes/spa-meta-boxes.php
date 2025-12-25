@@ -15,258 +15,241 @@ if (!defined('ABSPATH')) {
 add_action('add_meta_boxes', 'spa_add_all_meta_boxes');
 function spa_add_all_meta_boxes() {
     
-    // PROGRAMY (spa_group)
-    add_meta_box('spa_group_details', '🤸 Detaily programu', 'spa_group_meta_box', 'spa_group', 'normal', 'high');
-    add_meta_box('spa_group_schedule', '📅 Rozvrh programu', 'spa_group_schedule_meta_box', 'spa_group', 'normal', 'high');
-    add_meta_box('spa_group_pricing', '💳 Cenník programu', 'spa_group_pricing_meta_box', 'spa_group', 'normal', 'high');
+    // REGISTRACIE
+    add_meta_box(
+        'spa_registration_details',
+        '📋 Detaily registrácie',
+        'spa_registration_details_callback',
+        'spa_registration',
+        'normal',
+        'high'
+    );
     
-    // REGISTRÁCIE
+    // UDALOSTI
+    add_meta_box(
+        'spa_event_details',
+        '📅 Detaily udalosti',
+        'spa_event_details_callback',
+        'spa_event',
+        'normal',
+        'high'
+    );
     
-    add_meta_box('spa_registration_details', '📋 Detaily registrácie', 'spa_registration_details_callback', 'spa_registration', 'normal', 'high');
-    
-    // MIESTA (spa_place)
-    add_meta_box('spa_place_details', '📍 Detaily miesta', 'spa_place_meta_box', 'spa_place', 'normal', 'high');
-    add_meta_box('spa_place_schedule', '📅 Rozvrh miesta', 'spa_place_schedule_meta_box', 'spa_place', 'normal', 'default');
-    
-    // UDALOSTI (spa_event)
-    add_meta_box('spa_event_details', '📅 Detaily udalosti', 'spa_event_meta_box', 'spa_event', 'normal', 'high');
-    
-    // DOCHÁDZKA (spa_attendance)
-    add_meta_box('spa_attendance_details', '✅ Záznam dochádzky', 'spa_attendance_meta_box', 'spa_attendance', 'normal', 'high');
+    // SKUPINY TRENINGOV
+    add_meta_box(
+        'spa_group_details',
+        'Detaily programu',
+        'spa_group_details_callback',
+        'spa_group',
+        'normal',
+        'high'
+    );
 }
 
 
 
 /* ==========================
-   REGISTRACIA - META BOX CALLBACK
-   Pridaj túto funkciu za spa_add_all_meta_boxes()
+   REGISTRACIA - META BOX CALLBACK   
    ========================== */
 
-   function spa_registration_details_callback($post) {
-        wp_nonce_field('spa_save_registration', 'spa_registration_nonce');
+   function spa_event_details_callback($post) {
+    wp_nonce_field('spa_save_event', 'spa_event_nonce');
+    
+    // Načítaj CSS
+    wp_enqueue_style('spa-admin-metaboxes', get_stylesheet_directory_uri() . '/assets/css/admin-metaboxes.css', [], '1.0.0');
+    
+    // Získaj meta údaje
+    $event_type = get_post_meta($post->ID, 'event_type', true);
+    $date_from = get_post_meta($post->ID, 'event_date_from', true);
+    $date_to = get_post_meta($post->ID, 'event_date_to', true);
+    $affects_training = get_post_meta($post->ID, 'affects_training', true);
+    $capacity = get_post_meta($post->ID, 'capacity', true);
+    $price = get_post_meta($post->ID, 'price', true);
+    $registration_enabled = get_post_meta($post->ID, 'registration_enabled', true);
+    $description = get_post_meta($post->ID, 'description', true);
+    
+    // Typy udalostí
+    $event_types = [
+        'holiday' => '🎄 Sviatok (tréningy sa nekonajú)',
+        'special' => '⭐ Špeciálne podujatie',
+        'birthday' => '🎂 Oslava narodenín',
+        'camp' => '🏕️ Tábor'
+    ];
+    
+    ?>
+    <div class="spa-event-form">
         
-        // Načítaj CSS
-        wp_enqueue_style('spa-admin-metaboxes', get_stylesheet_directory_uri() . '/assets/css/admin-metaboxes.css', [], '1.0.0');
+        <!-- TYP UDALOSTI -->
+        <div class="spa-form-row">
+            <label><strong>Typ udalosti:</strong></label>
+            <select name="event_type" id="event_type" class="widefat spa-event-type-select" required>
+                <option value="">-- Vyberte typ --</option>
+                <?php foreach ($event_types as $value => $label): ?>
+                    <option value="<?php echo esc_attr($value); ?>" <?php selected($event_type, $value); ?>>
+                        <?php echo esc_html($label); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         
-        // Získaj meta údaje z AKTUÁLNEJ štruktúry
-        $client_id = get_post_meta($post->ID, 'client_user_id', true);
-        $parent_id = get_post_meta($post->ID, 'parent_user_id', true);
-        $program_id = get_post_meta($post->ID, 'program_id', true);
-        $status = get_post_meta($post->ID, 'status', true);
+        <!-- DÁTUMY -->
+        <div class="spa-form-row spa-dates-row">
+            <div class="spa-date-field">
+                <label><strong>Dátum od:</strong></label>
+                <input type="date" name="event_date_from" id="event_date_from" value="<?php echo esc_attr($date_from); ?>" required>
+            </div>
+            <div class="spa-date-field">
+                <label><strong>Dátum do:</strong></label>
+                <input type="date" name="event_date_to" id="event_date_to" value="<?php echo esc_attr($date_to); ?>">
+                <small class="spa-help">Nechaj prázdne pre jednodenné udalosti</small>
+            </div>
+        </div>
         
-        // Získaj user data
-        $client = $client_id ? get_userdata($client_id) : null;
-        $parent = $parent_id ? get_userdata($parent_id) : null;
-        $program = $program_id ? get_post($program_id) : null;
+        <!-- OVPLYVŇUJE TRÉNINGY -->
+        <div class="spa-form-row">
+            <label>
+                <input type="checkbox" name="affects_training" id="affects_training" value="yes" <?php checked($affects_training, 'yes'); ?>>
+                <strong>⚠️ Tréningy sa v tento deň NEKONAJÚ</strong>
+            </label>
+            <p class="spa-help">Zaškrtni pre sviatky a dni bez tréningov</p>
+        </div>
         
-        // VS a PIN sú v user_meta
-        $vs = $client_id ? get_user_meta($client_id, 'variabilny_symbol', true) : '';
-        $pin = $client_id ? get_user_meta($client_id, 'spa_pin_plain', true) : '';
-        $birthdate = $client_id ? get_user_meta($client_id, 'birthdate', true) : '';
-        $rodne_cislo = $client_id ? get_user_meta($client_id, 'rodne_cislo', true) : '';
-        $phone = $parent_id ? get_user_meta($parent_id, 'phone', true) : '';
+        <!-- MIESTA (TAXONÓMIA) -->
+        <div class="spa-form-row">
+            <label><strong>📍 Postihnuté miesta:</strong></label>
+            <p class="spa-help">Ak nie je vybrané žiadne miesto, udalosť platí pre všetky miesta</p>
+            <?php
+            $places = get_terms(['taxonomy' => 'spa_place', 'hide_empty' => false]);
+            $selected_places = wp_get_post_terms($post->ID, 'spa_place', ['fields' => 'ids']);
+            
+            if ($places && !is_wp_error($places)):
+                foreach ($places as $place):
+            ?>
+                <label class="spa-checkbox-label">
+                    <input type="checkbox" name="spa_places[]" value="<?php echo $place->term_id; ?>" <?php checked(in_array($place->term_id, $selected_places)); ?>>
+                    <?php echo esc_html($place->name); ?>
+                </label>
+            <?php 
+                endforeach;
+            endif;
+            ?>
+        </div>
         
-        // Zoznam programov
-        $all_programs = get_posts([
-            'post_type' => 'spa_group',
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC'
-        ]);
+        <!-- ŠPECIÁLNE POLIA (pre camp/birthday/special) -->
+        <div id="spa-special-fields" style="display:none;">
+            
+            <hr style="margin: 25px 0;">
+            
+            <h4>Ďalšie informácie</h4>
+            
+            <div class="spa-form-row spa-inline-row">
+                <div class="spa-inline-field">
+                    <label><strong>Kapacita:</strong></label>
+                    <input type="number" name="capacity" id="capacity" value="<?php echo esc_attr($capacity); ?>" min="0" style="width:100px;">
+                </div>
+                <div class="spa-inline-field">
+                    <label><strong>Cena (EUR):</strong></label>
+                    <input type="text" name="price" id="price" value="<?php echo esc_attr($price); ?>" style="width:100px;">
+                </div>
+            </div>
+            
+            <div class="spa-form-row">
+                <label>
+                    <input type="checkbox" name="registration_enabled" id="registration_enabled" value="yes" <?php checked($registration_enabled, 'yes'); ?>>
+                    <strong>Povoliť online registráciu</strong>
+                </label>
+            </div>
+            
+            <div class="spa-form-row">
+                <label><strong>Popis udalosti:</strong></label>
+                <textarea name="description" id="description" rows="4" class="widefat"><?php echo esc_textarea($description); ?></textarea>
+            </div>
+            
+        </div>
         
-        // Miesto z programu
-        $place_str = '';
-        if ($program_id) {
-            $places = get_the_terms($program_id, 'spa_place');
-            if ($places && !is_wp_error($places)) {
-                $place_names = wp_list_pluck($places, 'name');
-                $place_str = implode(', ', $place_names);
+    </div>
+    
+    <!-- JAVASCRIPT -->
+    <script>
+    jQuery(document).ready(function($) {
+        var eventTypeSelect = $('#event_type');
+        var specialFields = $('#spa-special-fields');
+        var affectsTraining = $('#affects_training');
+        
+        // Zobraz/skry špeciálne polia podľa typu
+        function toggleSpecialFields() {
+            var type = eventTypeSelect.val();
+            if (type === 'special' || type === 'birthday' || type === 'camp') {
+                specialFields.slideDown();
+            } else {
+                specialFields.slideUp();
+            }
+            
+            // Auto-check "affects_training" pre sviatky
+            if (type === 'holiday') {
+                affectsTraining.prop('checked', true);
             }
         }
         
-        // Statusy
-        $statuses = [
-            'pending' => '⏳ Čaká na schválenie',
-            'approved' => '✅ Schválené',
-            'active' => '🟢 Aktívny',
-            'cancelled' => '❌ Zrušené',
-            'completed' => '✔ Zaregistrované'
-        ];
+        // Pri zmene typu
+        eventTypeSelect.on('change', toggleSpecialFields);
         
-        $client_name = '';
-        if ($client) {
-            $client_name = trim($client->first_name . ' ' . $client->last_name);
-            if (empty($client_name)) $client_name = $client->display_name;
-        }
-        
-        $parent_name = '';
-        if ($parent) {
-            $parent_name = trim($parent->first_name . ' ' . $parent->last_name);
-            if (empty($parent_name)) $parent_name = $parent->display_name;
-        }
-        
-        ?>
-        <table class="spa-meta-box-table">
-            
-            <!-- DIEŤA / KLIENT -->
-            <tr>
-                <th>👶 Dieťa/Klient</th>
-                <td>
-                    <?php if ($client): ?>
-                        <strong><?php echo esc_html($client_name); ?></strong>
-                        <?php if ($birthdate): ?>
-                            <br><small>Dátum narodenia: <strong><?php echo esc_html(date('d.m.Y', strtotime($birthdate))); ?></strong></small>
-                        <?php endif; ?>
-                        <?php if ($rodne_cislo): ?>
-                            <br><small>Rodné číslo: <strong><?php echo esc_html($rodne_cislo); ?></strong></small>
-                        <?php endif; ?>
-                        <br><a href="<?php echo get_edit_user_link($client_id); ?>" target="_blank" class="button button-small spa-btn-edit">Upraviť profil →</a>
-                    <?php else: ?>
-                        <span class="spa-no-data">Nie je priradený</span>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            
-            <!-- VS A PIN -->
-            <tr>
-                <th>🔢 VS / 🔐 PIN</th>
-                <td>
-                    <strong class="spa-credential">VS: <?php echo $vs ?: '—'; ?></strong>
-                    <span class="spa-separator">|</span>
-                    <strong class="spa-credential">PIN: <?php echo $pin ?: '—'; ?></strong>
-                </td>
-            </tr>
-            
-            <!-- RODIČ -->
-            <tr>
-                <th>👨‍👩‍👧 Rodič</th>
-                <td>
-                    <?php if ($parent): ?>
-                        <strong><?php echo esc_html($parent_name); ?></strong><br>
-                        <small>E-mail: <a href="mailto:<?php echo esc_html($parent->user_email); ?>"><?php echo esc_html($parent->user_email); ?></a></small>
-                        <?php if ($phone): ?>
-                            <br><small>Telefón: <a href="tel:<?php echo esc_html($phone); ?>"><?php echo esc_html($phone); ?></a></small>
-                        <?php endif; ?>
-                        <br><a href="<?php echo get_edit_user_link($parent_id); ?>" target="_blank" class="button button-small spa-btn-edit">Upraviť profil →</a>
-                    <?php else: ?>
-                        <span class="spa-no-data">Nie je priradený</span>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            
-            <!-- PROGRAM (readonly) -->
-            <tr>
-                <th>🏋️ Aktuálny program</th>
-                <td>
-                    <strong><?php echo $program ? esc_html($program->post_title) : '—'; ?></strong>
-                    <?php if ($place_str): ?>
-                        <br><small>📍 <?php echo esc_html($place_str); ?></small>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <!-- EDITOVATEĽNÉ POLIA -->
-        <div class="spa-edit-box">
-            <h4>⚙️ Úprava registrácie - tréningového programu</h4>
-            
-            <p>
-                <label><strong>Program:</strong></label><br>
-                <select name="program_id" id="program_id" class="widefat spa-select-program">
-                    <option value="">-- Vyberte program --</option>
-                    <?php foreach ($all_programs as $prog): ?>
-                        <option value="<?php echo $prog->ID; ?>" <?php selected($program_id, $prog->ID); ?>>
-                            <?php echo esc_html($prog->post_title); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </p>
-            
-            <p>
-                <label><strong>Status:</strong></label><br>
-                <select name="status" id="status" class="widefat spa-select-status">
-                    <?php foreach ($statuses as $value => $label): ?>
-                        <option value="<?php echo esc_attr($value); ?>" <?php selected($status, $value); ?>>
-                            <?php echo esc_html($label); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </p>
-        </div>
-        
-        <input type="hidden" name="client_user_id" value="<?php echo esc_attr($client_id); ?>">
-        <input type="hidden" name="parent_user_id" value="<?php echo esc_attr($parent_id); ?>">
-        <?php
-    }
+        // Pri načítaní stránky
+        toggleSpecialFields();
+    });
+    </script>
+    <?php
+}
 
     /* ==========================
     REGISTRACIA - SAVE META
-    ========================== */
-
-    add_action('save_post_spa_registration', 'spa_save_registration_meta', 10, 2);
-function spa_save_registration_meta($post_id, $post) {
-    
-    // Verifikácia nonce
-    if (!isset($_POST['spa_registration_nonce']) || !wp_verify_nonce($_POST['spa_registration_nonce'], 'spa_save_registration')) {
-        return;
-    }
-    
-    // Autosave check
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-        return;
-    }
-    
-    // Oprávnenia
-    if (!current_user_can('edit_post', $post_id)) {
-        return;
-    }
-    
-    $title_changed = false;
-    
-    // Ulož program_id
-    if (isset($_POST['program_id'])) {
-        $new_program_id = intval($_POST['program_id']);
-        $old_program_id = get_post_meta($post_id, 'program_id', true);
+    ========================== */    
+    add_action('save_post_spa_event', 'spa_save_event_meta', 10, 2);
+    function spa_save_event_meta($post_id, $post) {
         
-        if ($new_program_id != $old_program_id) {
-            update_post_meta($post_id, 'program_id', $new_program_id);
-            $title_changed = true;
+        // Verifikácia nonce
+        if (!isset($_POST['spa_event_nonce']) || !wp_verify_nonce($_POST['spa_event_nonce'], 'spa_save_event')) {
+            return;
+        }
+        
+        // Autosave check
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        // Oprávnenia
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
+        // Ulož meta polia
+        $fields = [
+            'event_type',
+            'event_date_from',
+            'event_date_to',
+            'capacity',
+            'price',
+            'description'
+        ];
+        
+        foreach ($fields as $field) {
+            if (isset($_POST[$field])) {
+                update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));
+            }
+        }
+        
+        // Checkboxy
+        update_post_meta($post_id, 'affects_training', isset($_POST['affects_training']) ? 'yes' : 'no');
+        update_post_meta($post_id, 'registration_enabled', isset($_POST['registration_enabled']) ? 'yes' : 'no');
+        
+        // Taxonómia miesta
+        if (isset($_POST['spa_places'])) {
+            $place_ids = array_map('intval', $_POST['spa_places']);
+            wp_set_post_terms($post_id, $place_ids, 'spa_place');
+        } else {
+            wp_set_post_terms($post_id, [], 'spa_place');
         }
     }
-    
-    // Ulož status
-    if (isset($_POST['status'])) {
-        update_post_meta($post_id, 'status', sanitize_text_field($_POST['status']));
-    }
-    
-    // Ak sa zmenil program, aktualizuj post_title (LEN MENO)
-    if ($title_changed) {
-        $client_id = get_post_meta($post_id, 'client_user_id', true);
-        
-        $client = get_userdata($client_id);
-        
-        if ($client) {
-            $client_name = trim($client->first_name . ' ' . $client->last_name);
-            if (empty($client_name)) $client_name = $client->display_name;
-            
-            // ✅ OPRAVENÉ: post_title = LEN meno dieťaťa/klienta
-            $new_title = $client_name;
-            
-            // Odpoj hook aby sa predišlo nekonečnej slučke
-            remove_action('save_post_spa_registration', 'spa_save_registration_meta', 10);
-            
-            wp_update_post([
-                'ID' => $post_id,
-                'post_title' => $new_title
-            ]);
-            
-            // Znovu pripoj hook
-            add_action('save_post_spa_registration', 'spa_save_registration_meta', 10, 2);
-        }
-    }
-}
 
 /* ============================================================
    META BOX: DETAILY PROGRAMU (spa_group) - NOVÝ
