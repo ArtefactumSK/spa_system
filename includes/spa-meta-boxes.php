@@ -983,3 +983,111 @@ function spa_save_group_details_meta($post_id, $post) {
         update_post_meta($post_id, 'spa_icon_secondary_color', sanitize_hex_color($_POST['spa_icon_secondary_color']));
     }
 }
+
+
+/* ==========================
+   SPA MIESTO - META BOX (DIAGNOSTIKA)
+   ========================== */
+
+   add_action('add_meta_boxes', 'spa_add_place_meta_box');
+   function spa_add_place_meta_box() {
+       add_meta_box(
+           'spa_place_diagnostic',
+           '🔍 Diagnostika miesta',
+           'spa_place_diagnostic_callback',
+           'spa_place',
+           'normal',
+           'high'
+       );
+   }
+   
+   function spa_place_diagnostic_callback($post) {
+    ?>
+    <div style="background:#FFF3CD;padding:15px;border:1px solid #FFE69C;border-radius:4px;">
+        <h4 style="margin:0 0 10px 0;">⚠️ DIAGNOSTIKA VÄZIEB</h4>
+        
+        <?php
+        // Všetky programy
+        $all_programs = get_posts([
+            'post_type' => 'spa_group',
+            'posts_per_page' => -1,
+            'post_status' => 'publish'
+        ]);
+        ?>
+        
+        <p><strong>CPT ID miesta:</strong> <?php echo $post->ID; ?></p>
+        <p><strong>Názov miesta:</strong> <?php echo $post->post_title; ?></p>
+        
+        <hr>
+        
+        <!-- NOVÁ DIAGNOSTIKA: Skontroluj meta pole programov -->
+        <details open style="margin-top:15px;">
+            <summary style="cursor:pointer;font-weight:600;padding:8px;background:#E9ECEF;border-radius:4px;">
+                🔍 META POLIA PROGRAMOV (<?php echo count($all_programs); ?>)
+            </summary>
+            <div style="margin-top:10px;max-height:400px;overflow-y:auto;">
+                <?php if ($all_programs): ?>
+                    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                        <thead>
+                            <tr style="background:#DEE2E6;">
+                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Program</th>
+                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Meta: spa_place_id</th>
+                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Meta: place_id</th>
+                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Meta: place_cpt_id</th>
+                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Termy (spa_place)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($all_programs as $prog): 
+                                $meta_spa_place = get_post_meta($prog->ID, 'spa_place_id', true);
+                                $meta_place = get_post_meta($prog->ID, 'place_id', true);
+                                $meta_place_cpt = get_post_meta($prog->ID, 'place_cpt_id', true);
+                                
+                                $terms = get_the_terms($prog->ID, 'spa_place');
+                                $term_names = [];
+                                if ($terms && !is_wp_error($terms)) {
+                                    foreach ($terms as $t) {
+                                        $term_names[] = $t->name;
+                                    }
+                                }
+                                
+                                // Highlight ak sa zhoduje s týmto CPT
+                                $match = ($meta_spa_place == $post->ID || $meta_place == $post->ID || $meta_place_cpt == $post->ID);
+                                $bg = $match ? 'background:#D1E7DD;' : '';
+                            ?>
+                                <tr style="<?php echo $bg; ?>">
+                                    <td style="padding:6px;border:1px solid #CCC;">
+                                        <?php echo $prog->post_title; ?>
+                                    </td>
+                                    <td style="padding:6px;border:1px solid #CCC;">
+                                        <?php echo $meta_spa_place ?: '—'; ?>
+                                    </td>
+                                    <td style="padding:6px;border:1px solid #CCC;">
+                                        <?php echo $meta_place ?: '—'; ?>
+                                    </td>
+                                    <td style="padding:6px;border:1px solid #CCC;">
+                                        <?php echo $meta_place_cpt ?: '—'; ?>
+                                    </td>
+                                    <td style="padding:6px;border:1px solid #CCC;">
+                                        <?php echo $term_names ? implode(', ', $term_names) : '—'; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <p>Žiadne programy.</p>
+                <?php endif; ?>
+            </div>
+        </details>
+        
+        <hr>
+        
+        <p><strong>💡 Legenda:</strong></p>
+        <ul style="font-size:12px;margin:5px 0 0 20px;">
+            <li>Zelený riadok = program je priradený k tomuto miestu</li>
+            <li>Hľadáme ktoré meta pole obsahuje ID <strong><?php echo $post->ID; ?></strong></li>
+        </ul>
+    </div>
+    <?php
+}
