@@ -33,6 +33,16 @@ function spa_add_all_meta_boxes() {
     
     // DOCHÁDZKA (spa_attendance)
     add_meta_box('spa_attendance_details', '✅ Záznam dochádzky', 'spa_attendance_meta_box', 'spa_attendance', 'normal', 'high');
+
+    // MIESTA - ROZVRH
+    add_meta_box(
+        'spa_place_schedule',
+        '📅 Rozvrh miesta',
+        'spa_place_schedule_callback',
+        'spa_place',
+        'normal',
+        'high'
+    );
 }
 
 
@@ -411,7 +421,7 @@ function spa_save_registration_meta($post_id, $post) {
                     <?php endforeach; ?>
                 </select>
                 <p class="spa-help">Tréningy sa budú konať na tomto mieste</p>
-            </div>
+            </div>  
         </div>
         
         <div class="spa-meta-row">
@@ -727,7 +737,7 @@ function spa_place_meta_box($post) {
         </div>
         
         <div class="spa-meta-row">
-            <label>GPS súradnice:</label>
+            <label><span class="dashicons dashicons-location" style="color: var(--theme-palette-color-1);"></span> GPS súradnice:</label>
             <div class="spa-field">
                 <input type="text" name="spa_place_gps_lat" value="<?php echo esc_attr($gps_lat); ?>" placeholder="Lat" style="width: 150px; margin-right: 10px;">
                 <input type="text" name="spa_place_gps_lng" value="<?php echo esc_attr($gps_lng); ?>" placeholder="Lng" style="width: 150px;">
@@ -984,12 +994,101 @@ function spa_save_group_details_meta($post_id, $post) {
     }
 }
 
+/* ==========================
+   MIESTO - ROZVRH MIESTA
+   ========================== */
 
+   function spa_place_schedule_callback($post) {
+    
+    // Načítaj programy priradené k tomuto miestu cez meta_query
+    $programs = get_posts([
+        'post_type' => 'spa_group',
+        'posts_per_page' => -1,
+        'orderby' => 'menu_order title',
+        'order' => 'ASC',
+        'post_status' => 'publish',
+        'meta_query' => [[
+            'key' => 'spa_place_id',
+            'value' => $post->ID,
+            'compare' => '='
+        ]]
+    ]);
+    
+    ?>
+    <style>
+    .spa-schedule-table { width: 100%; border-collapse: collapse; }
+    .spa-schedule-table th { padding: 10px; background: #F9F9F9; border: 1px solid #DDD; text-align: left; font-weight: 600; }
+    .spa-schedule-table td { padding: 10px; border: 1px solid #DDD; }
+    .spa-schedule-day { display: inline-block; padding: 3px 8px; background: #E3F2FD; border-radius: 3px; margin-right: 5px; font-size: 11px; }
+    </style>
+    
+    <?php if (empty($programs)): ?>
+        <div style="padding:20px;text-align:center;background:#FFF3CD;border:1px solid #FFE69C;border-radius:4px;">
+            <p style="margin:0;font-size:14px;color:#856404;">
+                ⚠️ Pre toto miesto nie sú priradené žiadne programy.<br>
+                <small>Programy musia mať nastavené pole "Adresa miesta" na <strong><?php echo esc_html($post->post_title); ?></strong>.</small>
+            </p>
+        </div>
+    <?php else: ?>
+        <table class="spa-schedule-table">
+            <thead>
+                <tr>
+                    <th>Program</th>
+                    <th>Kategória</th>
+                    <th>Rozvrh</th>
+                    <th>Kapacita</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($programs as $program): 
+                    $schedule_json = get_post_meta($program->ID, 'spa_schedule', true);
+                    $schedule = $schedule_json ? json_decode($schedule_json, true) : [];
+                    $capacity = get_post_meta($program->ID, 'spa_capacity', true);
+                    
+                    $categories = get_the_terms($program->ID, 'spa_group_category');
+                    $cat_name = $categories && !is_wp_error($categories) ? $categories[0]->name : '—';
+                    
+                    $days_sk = [
+                        'monday' => 'Po',
+                        'tuesday' => 'Ut',
+                        'wednesday' => 'St',
+                        'thursday' => 'Št',
+                        'friday' => 'Pi',
+                        'saturday' => 'So',
+                        'sunday' => 'Ne'
+                    ];
+                ?>
+                    <tr>
+                        <td>
+                            <a href="<?php echo get_edit_post_link($program->ID); ?>" target="_blank">
+                                <strong><?php echo esc_html($program->post_title); ?></strong>
+                            </a>
+                        </td>
+                        <td><?php echo esc_html($cat_name); ?></td>
+                        <td>
+                            <?php if ($schedule): ?>
+                                <?php foreach ($schedule as $item): ?>
+                                    <span class="spa-schedule-day">
+                                        <?php echo $days_sk[$item['day']] ?? '?'; ?> <?php echo esc_html($item['time']); ?>
+                                    </span>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <span style="color:#999;">—</span>
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo $capacity ? esc_html($capacity) : '—'; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
+    <?php
+}
 /* ==========================
    SPA MIESTO - META BOX (DIAGNOSTIKA)
    ========================== */
 
-   add_action('add_meta_boxes', 'spa_add_place_meta_box');
+   /* add_action('add_meta_boxes', 'spa_add_place_meta_box');
    function spa_add_place_meta_box() {
        add_meta_box(
            'spa_place_diagnostic',
@@ -1090,4 +1189,4 @@ function spa_save_group_details_meta($post_id, $post) {
         </ul>
     </div>
     <?php
-}
+} */
