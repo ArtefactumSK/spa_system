@@ -9,6 +9,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// PROGRAMY - CASOVY ROZSAH
+add_meta_box(
+    'spa_program_timeframe',
+    '🕘 Časový rozsah programu',
+    'spa_program_timeframe_callback',
+    'spa_group',
+    'side',
+    'default'
+);
+
 /* ============================================================
    PRIDANIE VŠETKÝCH META BOXOV
    ============================================================ */
@@ -1084,109 +1094,140 @@ function spa_save_group_details_meta($post_id, $post) {
     <?php endif; ?>
     <?php
 }
+
 /* ==========================
-   SPA MIESTO - META BOX (DIAGNOSTIKA)
+   PROGRAMY - ČASOVÝ ROZSAH
    ========================== */
 
-   /* add_action('add_meta_boxes', 'spa_add_place_meta_box');
-   function spa_add_place_meta_box() {
-       add_meta_box(
-           'spa_place_diagnostic',
-           '🔍 Diagnostika miesta',
-           'spa_place_diagnostic_callback',
-           'spa_place',
-           'normal',
-           'high'
-       );
-   }
-   
-   function spa_place_diagnostic_callback($post) {
+   function spa_program_timeframe_callback($post) {
+    wp_nonce_field('spa_save_program_timeframe', 'spa_program_timeframe_nonce');
+    
+    // Načítaj uložené dáta
+    $start_date = get_post_meta($post->ID, 'spa_program_start_date', true);
+    $end_date = get_post_meta($post->ID, 'spa_program_end_date', true);
+    $weeks = get_post_meta($post->ID, 'spa_program_calendar_weeks', true);
+    
+    // Konverzia ISO → SK formát pre zobrazenie
+    $start_date_display = $start_date ? date('d.m.Y', strtotime($start_date)) : '';
+    $end_date_display = $end_date ? date('d.m.Y', strtotime($end_date)) : '';
+    
     ?>
-    <div style="background:#FFF3CD;padding:15px;border:1px solid #FFE69C;border-radius:4px;">
-        <h4 style="margin:0 0 10px 0;">⚠️ DIAGNOSTIKA VÄZIEB</h4>
-        
-        <?php
-        // Všetky programy
-        $all_programs = get_posts([
-            'post_type' => 'spa_group',
-            'posts_per_page' => -1,
-            'post_status' => 'publish'
-        ]);
-        ?>
-        
-        <p><strong>CPT ID miesta:</strong> <?php echo $post->ID; ?></p>
-        <p><strong>Názov miesta:</strong> <?php echo $post->post_title; ?></p>
-        
-        <hr>
-        
-        <!-- NOVÁ DIAGNOSTIKA: Skontroluj meta pole programov -->
-        <details open style="margin-top:15px;">
-            <summary style="cursor:pointer;font-weight:600;padding:8px;background:#E9ECEF;border-radius:4px;">
-                🔍 META POLIA PROGRAMOV (<?php echo count($all_programs); ?>)
-            </summary>
-            <div style="margin-top:10px;max-height:400px;overflow-y:auto;">
-                <?php if ($all_programs): ?>
-                    <table style="width:100%;border-collapse:collapse;font-size:11px;">
-                        <thead>
-                            <tr style="background:#DEE2E6;">
-                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Program</th>
-                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Meta: spa_place_id</th>
-                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Meta: place_id</th>
-                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Meta: place_cpt_id</th>
-                                <th style="padding:6px;text-align:left;border:1px solid #CCC;">Termy (spa_place)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($all_programs as $prog): 
-                                $meta_spa_place = get_post_meta($prog->ID, 'spa_place_id', true);
-                                $meta_place = get_post_meta($prog->ID, 'place_id', true);
-                                $meta_place_cpt = get_post_meta($prog->ID, 'place_cpt_id', true);
-                                
-                                $terms = get_the_terms($prog->ID, 'spa_place');
-                                $term_names = [];
-                                if ($terms && !is_wp_error($terms)) {
-                                    foreach ($terms as $t) {
-                                        $term_names[] = $t->name;
-                                    }
-                                }
-                                
-                                // Highlight ak sa zhoduje s týmto CPT
-                                $match = ($meta_spa_place == $post->ID || $meta_place == $post->ID || $meta_place_cpt == $post->ID);
-                                $bg = $match ? 'background:#D1E7DD;' : '';
-                            ?>
-                                <tr style="<?php echo $bg; ?>">
-                                    <td style="padding:6px;border:1px solid #CCC;">
-                                        <?php echo $prog->post_title; ?>
-                                    </td>
-                                    <td style="padding:6px;border:1px solid #CCC;">
-                                        <?php echo $meta_spa_place ?: '—'; ?>
-                                    </td>
-                                    <td style="padding:6px;border:1px solid #CCC;">
-                                        <?php echo $meta_place ?: '—'; ?>
-                                    </td>
-                                    <td style="padding:6px;border:1px solid #CCC;">
-                                        <?php echo $meta_place_cpt ?: '—'; ?>
-                                    </td>
-                                    <td style="padding:6px;border:1px solid #CCC;">
-                                        <?php echo $term_names ? implode(', ', $term_names) : '—'; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                <?php else: ?>
-                    <p>Žiadne programy.</p>
-                <?php endif; ?>
-            </div>
-        </details>
-        
-        <hr>
-        
-        <p><strong>💡 Legenda:</strong></p>
-        <ul style="font-size:12px;margin:5px 0 0 20px;">
-            <li>Zelený riadok = program je priradený k tomuto miestu</li>
-            <li>Hľadáme ktoré meta pole obsahuje ID <strong><?php echo $post->ID; ?></strong></li>
-        </ul>
+    <style>
+    .spa-timeframe-field { margin-bottom: 15px; }
+    .spa-timeframe-field label { display: block; font-weight: 600; margin-bottom: 5px; }
+    .spa-timeframe-field input[type="date"],
+    .spa-timeframe-field input[type="text"] { width: 100%; }
+    .spa-timeframe-help { font-size: 11px; color: #666; margin-top: 3px; font-style: italic; }
+    </style>
+    
+    <div class="spa-timeframe-field">
+        <label for="spa_program_start_date">📅 Dátum začiatku:</label>
+        <input 
+            type="date" 
+            name="spa_program_start_date" 
+            id="spa_program_start_date" 
+            value="<?php echo esc_attr($start_date); ?>"
+        >
+        <?php if ($start_date_display): ?>
+            <div class="spa-timeframe-help">Zobrazí sa ako: <?php echo esc_html($start_date_display); ?></div>
+        <?php endif; ?>
     </div>
+    
+    <div class="spa-timeframe-field">
+        <label for="spa_program_end_date">🏁 Dátum ukončenia:</label>
+        <input 
+            type="date" 
+            name="spa_program_end_date" 
+            id="spa_program_end_date" 
+            value="<?php echo esc_attr($end_date); ?>"
+        >
+        <?php if ($end_date_display): ?>
+            <div class="spa-timeframe-help">Zobrazí sa ako: <?php echo esc_html($end_date_display); ?></div>
+        <?php endif; ?>
+    </div>
+    
+    <div class="spa-timeframe-field">
+        <label for="spa_program_calendar_weeks">📆 Kalendárne týždne:</label>
+        <input 
+            type="text" 
+            name="spa_program_calendar_weeks" 
+            id="spa_program_calendar_weeks" 
+            value="<?php echo esc_attr($weeks); ?>" 
+            placeholder="napr. 31,32,33"
+        >
+        <div class="spa-timeframe-help">Pre tábory a špeciálne programy. Oddeľuj čiarkou.</div>
+    </div>
+    
+    <p style="margin-top: 20px; padding: 10px; background: #F0F6FC; border-left: 3px solid #0969DA; font-size: 12px;">
+        ℹ️ <strong>Poznámka:</strong> Tieto polia slúžia pre budúce rozšírenia (tábory, sezónne programy). 
+        Zatiaľ sa nepoužívajú v registráciách ani rozvrhu.
+    </p>
     <?php
-} */
+}
+
+/* ==========================
+   PROGRAMY - ULOŽENIE ČASOVÉHO ROZSAHU
+   ========================== */
+
+add_action('save_post_spa_group', 'spa_save_program_timeframe', 10, 2);
+function spa_save_program_timeframe($post_id, $post) {
+    
+    // Nonce check
+    if (!isset($_POST['spa_program_timeframe_nonce']) || 
+        !wp_verify_nonce($_POST['spa_program_timeframe_nonce'], 'spa_save_program_timeframe')) {
+        return;
+    }
+    
+    // Autosave check
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    // Permission check
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    // Uložiť DÁTUM ZAČIATKU (ISO formát Y-m-d)
+    if (isset($_POST['spa_program_start_date'])) {
+        $start_date = sanitize_text_field($_POST['spa_program_start_date']);
+        
+        if (!empty($start_date)) {
+            // Validácia dátumu
+            $parsed = date_parse($start_date);
+            if ($parsed['error_count'] === 0 && checkdate($parsed['month'], $parsed['day'], $parsed['year'])) {
+                update_post_meta($post_id, 'spa_program_start_date', $start_date);
+            }
+        } else {
+            delete_post_meta($post_id, 'spa_program_start_date');
+        }
+    }
+    
+    // Uložiť DÁTUM UKONČENIA (ISO formát Y-m-d)
+    if (isset($_POST['spa_program_end_date'])) {
+        $end_date = sanitize_text_field($_POST['spa_program_end_date']);
+        
+        if (!empty($end_date)) {
+            // Validácia dátumu
+            $parsed = date_parse($end_date);
+            if ($parsed['error_count'] === 0 && checkdate($parsed['month'], $parsed['day'], $parsed['year'])) {
+                update_post_meta($post_id, 'spa_program_end_date', $end_date);
+            }
+        } else {
+            delete_post_meta($post_id, 'spa_program_end_date');
+        }
+    }
+    
+    // Uložiť KALENDÁRNE TÝŽDNE
+    if (isset($_POST['spa_program_calendar_weeks'])) {
+        $weeks = sanitize_text_field($_POST['spa_program_calendar_weeks']);
+        
+        if (!empty($weeks)) {
+            // Validácia (len čísla a čiarky)
+            $weeks = preg_replace('/[^0-9,]/', '', $weeks);
+            update_post_meta($post_id, 'spa_program_calendar_weeks', $weeks);
+        } else {
+            delete_post_meta($post_id, 'spa_program_calendar_weeks');
+        }
+    }
+}
