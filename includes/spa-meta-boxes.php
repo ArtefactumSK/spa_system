@@ -916,11 +916,12 @@ function spa_event_meta_box($post) {
                         </label>
                         <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
                         <?php foreach ($programs as $program): ?>
-                            <label style="display: block; margin-bottom: 5px;">
+                            <label style="display: flex; align-items: flex-start; margin-bottom: 5px; gap: 8px;">
                                 <input type="checkbox" name="spa_event_program_ids[]" value="<?php echo $program->ID; ?>" 
                                     class="spa-program-checkbox"
+                                    style="margin-top: 3px; flex-shrink: 0;"
                                     <?php echo in_array($program->ID, $program_ids) ? 'checked' : ''; ?>>
-                                <?php echo esc_html($program->post_title); ?>
+                                <span style="flex: 1; line-height: 1.4;"><?php echo esc_html($program->post_title); ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>
@@ -943,11 +944,12 @@ function spa_event_meta_box($post) {
                         </label>
                         <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
                         <?php foreach ($places as $place): ?>
-                            <label style="display: block; margin-bottom: 5px;">
+                            <label style="display: flex; align-items: flex-start; margin-bottom: 5px; gap: 8px;">
                                 <input type="checkbox" name="spa_event_place_ids[]" value="<?php echo $place->ID; ?>" 
                                     class="spa-place-checkbox"
+                                    style="margin-top: 3px; flex-shrink: 0;"
                                     <?php echo in_array($place->ID, $place_ids) ? 'checked' : ''; ?>>
-                                <?php echo esc_html($place->post_title); ?>
+                                <span style="flex: 1; line-height: 1.4;"><?php echo esc_html($place->post_title); ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>
