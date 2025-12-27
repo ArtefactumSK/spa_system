@@ -43,16 +43,7 @@ function spa_add_all_meta_boxes() {
         'spa_place',
         'normal',
         'high'
-    );
-    // PROGRAMY - CASOVY ROZSAH
-    add_meta_box(
-        'spa_program_timeframe',
-        '🕘 Časový rozsah programu',
-        'spa_program_timeframe_callback',
-        'spa_group',
-        'side',
-        'default'
-    );
+    );    
 }
 
 
@@ -587,8 +578,70 @@ function spa_group_schedule_meta_box($post) {
     .spa-help { color: #666; font-size: 12px; margin-top: 10px; }
     </style>
     
+    <!-- ČASOVÝ ROZSAH PROGRAMU -->
+    <div style="background: #f0f6fc; padding: 20px; border: 1px solid #0969da; border-radius: 4px; margin-bottom: 20px;">
+        <h4 style="margin: 0 0 15px 0; color: #0969da;">🕘 Časový rozsah programu</h4>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 5px;">📅 Dátum začiatku:</label>
+                <?php 
+                $start_date = get_post_meta($post->ID, 'spa_program_start_date', true);
+                $start_date_display = $start_date ? date('d.m.Y', strtotime($start_date)) : '';
+                ?>
+                <input 
+                    type="date" 
+                    name="spa_program_start_date" 
+                    value="<?php echo esc_attr($start_date); ?>"
+                    style="width: 100%;"
+                >
+                <?php if ($start_date_display): ?>
+                    <p class="spa-help" style="margin: 5px 0 0 0; font-size: 11px; color: #666;">Zobrazí sa ako: <?php echo esc_html($start_date_display); ?></p>
+                <?php endif; ?>
+            </div>
+            
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 5px;">📅 Dátum ukončenia:</label>
+                <?php 
+                $end_date = get_post_meta($post->ID, 'spa_program_end_date', true);
+                $end_date_display = $end_date ? date('d.m.Y', strtotime($end_date)) : '';
+                ?>
+                <input 
+                    type="date" 
+                    name="spa_program_end_date" 
+                    value="<?php echo esc_attr($end_date); ?>"
+                    style="width: 100%;"
+                >
+                <?php if ($end_date_display): ?>
+                    <p class="spa-help" style="margin: 5px 0 0 0; font-size: 11px; color: #666;">Zobrazí sa ako: <?php echo esc_html($end_date_display); ?></p>
+                <?php endif; ?>
+            </div>
+            
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 5px;">📆 Kalendárne týždne:</label>
+                <?php $weeks = get_post_meta($post->ID, 'spa_program_calendar_weeks', true); ?>
+                <input 
+                    type="text" 
+                    name="spa_program_calendar_weeks" 
+                    value="<?php echo esc_attr($weeks); ?>" 
+                    placeholder="napr. 31,32,33"
+                    style="width: 100%;"
+                >
+                <p class="spa-help" style="margin: 5px 0 0 0; font-size: 11px; color: #666;">Pre tábory. Oddeľuj čiarkou.</p>
+            </div>
+        </div>
+        
+        <p style="margin: 15px 0 0 0; padding: 10px; background: #fff; border-left: 3px solid #0969da; font-size: 12px;">
+            ℹ️ <strong>Poznámka:</strong> Časový rozsah určuje, v akom období je program aktívny.<ul>
+                <li>Ak vyplníš dátum začiatku a ukončenia, program platí len v tomto období.</li>
+                <li>Ak zadáš kalendárne týždne, program platí len v uvedených týždňoch (napr. tábory).</li>
+                <li>Ak polia <strong>nevyplníš</strong>, program sa považuje za <strong>celoročný</strong>.</li>
+            </ul>
+        </p>
+    </div>
+    <!-- DNI TÝŽDŇA PROGRAMU -->
     <div class="spa-schedule-box">
-        <h4>📅 Tréningy - Dni a časy</h4>
+        <h4>📅 Tréningové dni týždňa a časy</h4>
         <p style="color: #666; margin-bottom: 15px;">Pridajte všetky dni a časy, kedy sa tento program koná.</p>
         
         <div id="spa-schedule-container">
@@ -1092,76 +1145,6 @@ function spa_save_group_details_meta($post_id, $post) {
             </tbody>
         </table>
     <?php endif; ?>
-    <?php
-}
-
-/* ==========================
-   PROGRAMY - ČASOVÝ ROZSAH
-   ========================== */
-
-   function spa_program_timeframe_callback($post) {
-    wp_nonce_field('spa_save_program_timeframe', 'spa_program_timeframe_nonce');
-    
-    // Načítaj uložené dáta
-    $start_date = get_post_meta($post->ID, 'spa_program_start_date', true);
-    $end_date = get_post_meta($post->ID, 'spa_program_end_date', true);
-    $weeks = get_post_meta($post->ID, 'spa_program_calendar_weeks', true);
-    
-    // Konverzia ISO → SK formát pre zobrazenie
-    $start_date_display = $start_date ? date('d.m.Y', strtotime($start_date)) : '';
-    $end_date_display = $end_date ? date('d.m.Y', strtotime($end_date)) : '';
-    
-    ?>
-    <style>
-    .spa-timeframe-field { margin-bottom: 15px; }
-    .spa-timeframe-field label { display: block; font-weight: 600; margin-bottom: 5px; }
-    .spa-timeframe-field input[type="date"],
-    .spa-timeframe-field input[type="text"] { width: 100%; }
-    .spa-timeframe-help { font-size: 11px; color: #666; margin-top: 3px; font-style: italic; }
-    </style>
-    
-    <div class="spa-timeframe-field">
-        <label for="spa_program_start_date">📅 Dátum začiatku:</label>
-        <input 
-            type="date" 
-            name="spa_program_start_date" 
-            id="spa_program_start_date" 
-            value="<?php echo esc_attr($start_date); ?>"
-        >
-        <?php if ($start_date_display): ?>
-            <div class="spa-timeframe-help">Zobrazí sa ako: <?php echo esc_html($start_date_display); ?></div>
-        <?php endif; ?>
-    </div>
-    
-    <div class="spa-timeframe-field">
-        <label for="spa_program_end_date">🏁 Dátum ukončenia:</label>
-        <input 
-            type="date" 
-            name="spa_program_end_date" 
-            id="spa_program_end_date" 
-            value="<?php echo esc_attr($end_date); ?>"
-        >
-        <?php if ($end_date_display): ?>
-            <div class="spa-timeframe-help">Zobrazí sa ako: <?php echo esc_html($end_date_display); ?></div>
-        <?php endif; ?>
-    </div>
-    
-    <div class="spa-timeframe-field">
-        <label for="spa_program_calendar_weeks">📆 Kalendárne týždne:</label>
-        <input 
-            type="text" 
-            name="spa_program_calendar_weeks" 
-            id="spa_program_calendar_weeks" 
-            value="<?php echo esc_attr($weeks); ?>" 
-            placeholder="napr. 31,32,33"
-        >
-        <div class="spa-timeframe-help">Pre tábory a špeciálne programy. Oddeľuj čiarkou.</div>
-    </div>
-    
-    <p style="margin-top: 20px; padding: 10px; background: #F0F6FC; border-left: 3px solid #0969DA; font-size: 12px;">
-        ℹ️ <strong>Poznámka:</strong> Tieto polia slúžia pre budúce rozšírenia (tábory, sezónne programy). 
-        Zatiaľ sa nepoužívajú v registráciách ani rozvrhu.
-    </p>
     <?php
 }
 
