@@ -910,7 +910,7 @@ function spa_event_meta_box($post) {
                     <p style="color: #666;">Zatiaľ nemáte vytvorené žiadne programy.</p>
                 <?php else: ?>
                     <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff; border-radius: 4px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                        <label>
                             <input type="checkbox" id="spa_select_all_programs" style="margin-right: 5px;">
                             Vybrať všetky programy
                         </label>
@@ -938,7 +938,7 @@ function spa_event_meta_box($post) {
                     <p style="color: #666;">Zatiaľ nemáte vytvorené žiadne miesta.</p>
                 <?php else: ?>
                     <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff; border-radius: 4px;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                        <label>
                             <input type="checkbox" id="spa_select_all_places" style="margin-right: 5px;">
                             Vybrať všetky miesta
                         </label>
