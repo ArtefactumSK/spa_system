@@ -1329,89 +1329,105 @@ function spa_save_group_details_meta($post_id, $post) {
    function spa_place_schedule_callback($post) {
     
     // Načítaj programy priradené k tomuto miestu cez meta_query
-    $programs = get_posts([
-        'post_type' => 'spa_group',
-        'posts_per_page' => -1,
-        'orderby' => 'menu_order title',
-        'order' => 'ASC',
-        'post_status' => 'publish',
-        'meta_query' => [[
-            'key' => 'spa_place_id',
-            'value' => $post->ID,
-            'compare' => '='
-        ]]
-    ]);
-    
-    ?>
-    <style>
-    .spa-schedule-table { width: 100%; border-collapse: collapse; }
-    .spa-schedule-table th { padding: 10px; background: #F9F9F9; border: 1px solid #DDD; text-align: left; font-weight: 600; }
-    .spa-schedule-table td { padding: 10px; border: 1px solid #DDD; }
-    .spa-schedule-day { display: inline-block; padding: 3px 8px; background: #E3F2FD; border-radius: 3px; margin-right: 5px; font-size: 11px; }
-    </style>
-    
-    <?php if (empty($programs)): ?>
-        <div style="padding:20px;text-align:center;background:#FFF3CD;border:1px solid #FFE69C;border-radius:4px;">
-            <p style="margin:0;font-size:14px;color:#856404;">
-                ⚠️ Pre toto miesto nie sú priradené žiadne programy.<br>
-                <small>Programy musia mať nastavené pole "Adresa miesta" na <strong><?php echo esc_html($post->post_title); ?></strong>.</small>
-            </p>
-        </div>
-    <?php else: ?>
-        <table class="spa-schedule-table">
-            <thead>
-                <tr>
-                    <th>Program</th>
-                    <th>Kategória</th>
-                    <th>Rozvrh</th>
-                    <th>Kapacita</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($programs as $program): 
-                    $schedule_json = get_post_meta($program->ID, 'spa_schedule', true);
-                    $schedule = $schedule_json ? json_decode($schedule_json, true) : [];
-                    $capacity = get_post_meta($program->ID, 'spa_capacity', true);
-                    
-                    $categories = get_the_terms($program->ID, 'spa_group_category');
-                    $cat_name = $categories && !is_wp_error($categories) ? $categories[0]->name : '—';
-                    
-                    $days_sk = [
-                        'monday' => 'Po',
-                        'tuesday' => 'Ut',
-                        'wednesday' => 'St',
-                        'thursday' => 'Št',
-                        'friday' => 'Pi',
-                        'saturday' => 'So',
-                        'sunday' => 'Ne'
-                    ];
-                ?>
+        $programs = get_posts([
+            'post_type' => 'spa_group',
+            'posts_per_page' => -1,
+            'orderby' => 'menu_order title',
+            'order' => 'ASC',
+            'post_status' => 'publish',
+            'meta_query' => [[
+                'key' => 'spa_place_id',
+                'value' => $post->ID,
+                'compare' => '='
+            ]]
+        ]);
+        
+        ?>
+        <style>
+        .spa-schedule-table { width: 100%; border-collapse: collapse; }
+        .spa-schedule-table th { padding: 10px; background: #F9F9F9; border: 1px solid #DDD; text-align: left; font-weight: 600; }
+        .spa-schedule-table td { padding: 10px; border: 1px solid #DDD; }
+        .spa-schedule-day { display: inline-block; padding: 3px 8px; background: #E3F2FD; border-radius: 3px; margin-right: 5px; font-size: 11px; }
+        </style>
+        
+        <?php if (empty($programs)): ?>
+            <div style="padding:20px;text-align:center;background:#FFF3CD;border:1px solid #FFE69C;border-radius:4px;">
+                <p style="margin:0;font-size:14px;color:#856404;">
+                    ⚠️ Pre toto miesto nie sú priradené žiadne programy.<br>
+                    <small>Programy musia mať nastavené pole "Adresa miesta" na <strong><?php echo esc_html($post->post_title); ?></strong>.</small>
+                </p>
+            </div>
+        <?php else: ?>
+            <table class="spa-schedule-table">
+                <thead>
                     <tr>
-                        <td>
-                            <a href="<?php echo get_edit_post_link($program->ID); ?>" target="_blank">
-                                <strong><?php echo esc_html($program->post_title); ?></strong>
-                            </a>
-                        </td>
-                        <td><?php echo esc_html($cat_name); ?></td>
-                        <td>
-                            <?php if ($schedule): ?>
-                                <?php foreach ($schedule as $item): ?>
-                                    <span class="spa-schedule-day">
-                                        <?php echo $days_sk[$item['day']] ?? '?'; ?> <?php echo esc_html($item['time']); ?>
-                                    </span>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <span style="color:#999;">—</span>
-                            <?php endif; ?>
-                        </td>
-                        <td><?php echo $capacity ? esc_html($capacity) : '—'; ?></td>
+                        <th>Program</th>
+                        <th style="text-align: center;">Vek</th>
+                        <th>Rozvrh</th>
+                        <th>Kapacita</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-    <?php
-}
+                </thead>
+                <tbody>
+                    <?php foreach ($programs as $program): 
+                        $schedule_json = get_post_meta($program->ID, 'spa_schedule', true);
+                        $schedule = $schedule_json ? json_decode($schedule_json, true) : [];
+                        $capacity = get_post_meta($program->ID, 'spa_capacity', true);
+                        
+                        // VEK - načítaj age_from a age_to
+                        $age_from = get_post_meta($program->ID, 'spa_age_from', true);
+                        $age_to = get_post_meta($program->ID, 'spa_age_to', true);
+                        
+                        // Vytvor age display
+                        $age_display = '—';
+                        if ($age_from && $age_to) {
+                            $age_display = $age_from . '–' . $age_to;
+                        } elseif ($age_from) {
+                            $age_display = $age_from . '+';
+                        } elseif ($age_to) {
+                            $age_display = 'do ' . $age_to;
+                        }
+                        
+                        $days_sk = [
+                            'monday' => 'Po',
+                            'tuesday' => 'Ut',
+                            'wednesday' => 'St',
+                            'thursday' => 'Št',
+                            'friday' => 'Pi',
+                            'saturday' => 'So',
+                            'sunday' => 'Ne'
+                        ];
+                    ?>
+                        <tr>
+                            <td>
+                                <a href="<?php echo get_edit_post_link($program->ID); ?>" target="_blank">
+                                    <strong><?php echo esc_html($program->post_title); ?></strong>
+                                </a>
+                            </td>
+                            <td style="text-align: center;"><?php echo esc_html($age_display); ?></td>
+                            <td>
+                                <?php if ($schedule): ?>
+                                    <?php foreach ($schedule as $item): ?>
+                                        <span class="spa-schedule-day">
+                                            <?php 
+                                            echo $days_sk[$item['day']] ?? '?'; 
+                                            echo ' ';
+                                            echo !empty($item['from']) ? esc_html($item['from']) : '';
+                                            echo !empty($item['to']) ? '-' . esc_html($item['to']) : '';
+                                            ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <span style="color:#999;">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo $capacity ? esc_html($capacity) : '—'; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+        <?php
+    }
 
 /* ==========================
    PROGRAMY - ULOŽENIE ČASOVÉHO ROZSAHU
