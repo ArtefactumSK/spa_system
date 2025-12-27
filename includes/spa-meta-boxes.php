@@ -754,6 +754,257 @@ function spa_group_schedule_meta_box($post) {
     <?php
 }
 
+
+   /* ============================================================
+   META BOX: UDALOSŤ (spa_event)
+   Samostatná doménová entita s voliteľnými väzbami
+   ============================================================ */
+
+function spa_event_meta_box($post) {
+    wp_nonce_field('spa_save_event', 'spa_event_nonce');
+    
+    // Načítaj existujúce dáta
+    $type = get_post_meta($post->ID, 'spa_event_type', true);
+    $date_from = get_post_meta($post->ID, 'spa_event_date_from', true);
+    $date_to = get_post_meta($post->ID, 'spa_event_date_to', true);
+    $time_from = get_post_meta($post->ID, 'spa_event_time_from', true);
+    $time_to = get_post_meta($post->ID, 'spa_event_time_to', true);
+    $all_day = get_post_meta($post->ID, 'spa_event_all_day', true);
+    $recurring = get_post_meta($post->ID, 'spa_event_recurring', true);
+    
+    $program_ids = get_post_meta($post->ID, 'spa_event_program_ids', true);
+    $place_ids = get_post_meta($post->ID, 'spa_event_place_ids', true);
+    
+    // Ensure arrays
+    $program_ids = is_array($program_ids) ? $program_ids : [];
+    $place_ids = is_array($place_ids) ? $place_ids : [];
+    
+    // Získaj dostupné programy a miesta
+    $programs = get_posts([
+        'post_type' => 'spa_group',
+        'posts_per_page' => -1,
+        'orderby' => 'title',
+        'order' => 'ASC',
+        'post_status' => 'publish'
+    ]);
+    
+    $places = get_posts([
+        'post_type' => 'spa_place',
+        'posts_per_page' => -1,
+        'orderby' => 'title',
+        'order' => 'ASC',
+        'post_status' => 'publish'
+    ]);
+    
+    ?>
+    
+    <!-- EXPLAINER BOX -->
+    <div style="background: #e7f3ff; border-left: 4px solid #0969da; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+        <h4 style="margin: 0 0 10px 0; color: #0969da;">ℹ️ Čo je SPA Udalosť?</h4>
+        <p style="margin: 0; font-size: 13px; line-height: 1.6;">
+            <strong>SPA Udalosť</strong> reprezentuje <strong>výnimku</strong> alebo <strong>špeciálnu situáciu</strong> v rozvrhu.<br>
+            Môže ovplyvniť:<br>
+            • konkrétne programy<br>
+            • konkrétne miesta<br>
+            • alebo celý systém (globálna udalosť)<br>            
+            <strong>Väzby sú VOLITEĽNÉ</strong> – ak nevyberiete ani program, ani miesto, udalosť sa považuje za <strong>globálnu</strong>.
+        </p>
+    </div>
+    
+    <!-- TYP UDALOSTI -->
+    <div class="spa-section">
+        <h4>🎯 Typ udalosti</h4>
+        
+        <div class="spa-meta-row">
+            <label for="spa_event_type">Typ udalosti: <span style="color:#d63638;">*</span></label>
+            <div class="spa-field">
+                <select name="spa_event_type" id="spa_event_type" required>
+                    <option value="">-- Vyberte typ --</option>
+                    <option value="holiday" <?php selected($type, 'holiday'); ?>>🎄 Sviatky / Prázdniny (zrušenie tréningov)</option>
+                    <option value="closure" <?php selected($type, 'closure'); ?>>🚫 Zatvorené (miesto nedostupné)</option>
+                    <option value="camp" <?php selected($type, 'camp'); ?>>⛺ Tábor (špeciálny program)</option>
+                    <option value="event" <?php selected($type, 'event'); ?>>🎉 Špeciálna udalosť (informačná)</option>
+                    <option value="schedule_change" <?php selected($type, 'schedule_change'); ?>>📅 Zmena rozvrhu</option>
+                </select>
+                <p class="spa-help">
+                    <strong>Sviatky/Prázdniny:</strong> zruší tréningy v danom období<br>
+                    <strong>Zatvorené:</strong> miesto je nedostupné<br>
+                    <strong>Tábor:</strong> špeciálny program mimo bežného rozvrhu<br>
+                    <strong>Špeciálna udalosť:</strong> len informačná, neovplyvňuje rozvrh<br>
+                    <strong>Zmena rozvrhu:</strong> dočasná zmena času/miesta
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- DÁTUM A ČAS -->
+    <div class="spa-section">
+        <h4>📆 Dátum a čas</h4>
+        
+        <div class="spa-meta-row">
+            <label for="spa_event_date_from">Dátum od: <span style="color:#d63638;">*</span></label>
+            <div class="spa-field">
+                <input type="date" name="spa_event_date_from" id="spa_event_date_from" 
+                    value="<?php echo esc_attr($date_from); ?>" required style="width: 200px;">
+            </div>
+        </div>
+        
+        <div class="spa-meta-row">
+            <label for="spa_event_date_to">Dátum do:</label>
+            <div class="spa-field">
+                <input type="date" name="spa_event_date_to" id="spa_event_date_to" 
+                    value="<?php echo esc_attr($date_to); ?>" style="width: 200px;">
+                <p class="spa-help">Voliteľné - pre viacdenné udalosti. Ak nevyplníte, udalosť trvá jeden deň.</p>
+            </div>
+        </div>
+        
+        <div class="spa-meta-row">
+            <label>
+                <input type="checkbox" name="spa_event_all_day" value="1" <?php checked($all_day, 1); ?> id="spa_event_all_day">
+                Celý deň
+            </label>
+        </div>
+        
+        <div class="spa-meta-row" id="spa-time-fields" style="<?php echo $all_day ? 'display:none;' : ''; ?>">
+            <label>Čas:</label>
+            <div class="spa-field" style="display: flex; gap: 10px; align-items: center;">
+                <input type="time" name="spa_event_time_from" value="<?php echo esc_attr($time_from); ?>" 
+                    style="width: 120px;">
+                <span>do</span>
+                <input type="time" name="spa_event_time_to" value="<?php echo esc_attr($time_to); ?>" 
+                    style="width: 120px;">
+                <p class="spa-help" style="margin: 0 0 0 10px;">Voliteľné - len ak udalosť trvá konkrétny čas</p>
+            </div>
+        </div>
+        
+        <div class="spa-meta-row">
+            <label for="spa_event_recurring">Opakovanie:</label>
+            <div class="spa-field">
+                <select name="spa_event_recurring" id="spa_event_recurring">
+                    <option value="once" <?php selected($recurring, 'once'); ?>>Jednorazovo</option>
+                    <option value="weekly" <?php selected($recurring, 'weekly'); ?>>Každý týždeň</option>
+                    <option value="yearly" <?php selected($recurring, 'yearly'); ?>>Každý rok (napr. vianočné sviatky)</option>
+                </select>
+                <p class="spa-help">Použite pre pravidelné udalosti (napr. letné prázdniny každý rok).</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- VÄZBY (VOLITEĽNÉ) -->
+    <div class="spa-section" style="background: #fff8e5; border: 1px solid #ffc107;">
+        <h4>🔗 Väzby udalosti (VOLITEĽNÉ)</h4>
+        
+        <p style="background: #fff; padding: 12px; border-left: 3px solid #ffc107; margin-bottom: 15px; font-size: 13px;">
+            <strong>⚠️ Ako fungujú väzby udalosti:</strong><br>
+            • Ak NEVYBERIETE ani program ani miesto → udalosť je <strong>GLOBÁLNA</strong> (ovplyvní celý systém)<br>
+            • Ak vyberiete LEN miesto → ovplyvní <strong>všetky programy</strong> na tomto mieste<br>
+            • Ak vyberiete LEN program → ovplyvní tento program <strong>na všetkých miestach</strong><br>
+            • Ak vyberiete oboje → ovplyvní <strong>konkrétnu kombináciu</strong> program + miesto
+        </p>
+        
+        <!-- PROGRAMY -->
+        <div class="spa-meta-row">
+            <label>🤸 Ovplyvnené programy:</label>
+            <div class="spa-field">
+                <?php if (empty($programs)): ?>
+                    <p style="color: #666;">Zatiaľ nemáte vytvorené žiadne programy.</p>
+                <?php else: ?>
+                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff; border-radius: 4px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                            <input type="checkbox" id="spa_select_all_programs" style="margin-right: 5px;">
+                            Vybrať všetky programy
+                        </label>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                        <?php foreach ($programs as $program): ?>
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox" name="spa_event_program_ids[]" value="<?php echo $program->ID; ?>" 
+                                    class="spa-program-checkbox"
+                                    <?php echo in_array($program->ID, $program_ids) ? 'checked' : ''; ?>>
+                                <?php echo esc_html($program->post_title); ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <p class="spa-help" style="margin-top: 8px;">Nechajte prázdne pre globálnu udalosť</p>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- MIESTA -->
+        <div class="spa-meta-row" style="margin-top: 20px;">
+            <label>📍 Ovplyvnené miesta:</label>
+            <div class="spa-field">
+                <?php if (empty($places)): ?>
+                    <p style="color: #666;">Zatiaľ nemáte vytvorené žiadne miesta.</p>
+                <?php else: ?>
+                    <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff; border-radius: 4px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                            <input type="checkbox" id="spa_select_all_places" style="margin-right: 5px;">
+                            Vybrať všetky miesta
+                        </label>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #ddd;">
+                        <?php foreach ($places as $place): ?>
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox" name="spa_event_place_ids[]" value="<?php echo $place->ID; ?>" 
+                                    class="spa-place-checkbox"
+                                    <?php echo in_array($place->ID, $place_ids) ? 'checked' : ''; ?>>
+                                <?php echo esc_html($place->post_title); ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <p class="spa-help" style="margin-top: 8px;">Nechajte prázdne pre globálnu udalosť</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JAVASCRIPT -->
+    <script>
+    (function() {
+        // Toggle time fields
+        var allDayCheckbox = document.getElementById('spa_event_all_day');
+        var timeFields = document.getElementById('spa-time-fields');
+        if (allDayCheckbox && timeFields) {
+            allDayCheckbox.addEventListener('change', function() {
+                timeFields.style.display = this.checked ? 'none' : 'block';
+            });
+        }
+        
+        // Select all programs
+        var selectAllPrograms = document.getElementById('spa_select_all_programs');
+        if (selectAllPrograms) {
+            selectAllPrograms.addEventListener('change', function() {
+                var checkboxes = document.querySelectorAll('.spa-program-checkbox');
+                checkboxes.forEach(function(cb) {
+                    cb.checked = selectAllPrograms.checked;
+                });
+            });
+        }
+        
+        // Select all places
+        var selectAllPlaces = document.getElementById('spa_select_all_places');
+        if (selectAllPlaces) {
+            selectAllPlaces.addEventListener('change', function() {
+                var checkboxes = document.querySelectorAll('.spa-place-checkbox');
+                checkboxes.forEach(function(cb) {
+                    cb.checked = selectAllPlaces.checked;
+                });
+            });
+        }
+    })();
+    </script>
+    <?php
+}
+
+/* ============================================================
+   META BOX: DOCHÁDZKA (spa_attendance)
+   ============================================================ */
+
+function spa_attendance_meta_box($post) {
+    wp_nonce_field('spa_attendance_save', 'spa_attendance_nonce');
+    
+    echo '<p style="padding:20px;background:#f0f6fc;border-left:3px solid #0969da;">Meta box pre dochádzku zatiaľ nie je implementovaný.</p>';
+}
+
 /* ============================================================
    META BOX: MIESTO (spa_place)
    ============================================================ */
@@ -907,30 +1158,42 @@ function spa_save_place_meta($post_id, $post) {
 
 // UDALOSŤ (spa_event)
 add_action('save_post_spa_event', 'spa_save_event_meta', 10, 2);
-function spa_save_event_meta($post_id, $post) {
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!isset($_POST['spa_event_nonce']) || !wp_verify_nonce($_POST['spa_event_nonce'], 'spa_save_event')) return;
-    if (!current_user_can('edit_post', $post_id)) return;
-    
-    $fields = [
-        'spa_event_place_id' => 'intval',
-        'spa_event_type' => 'sanitize_text_field',
-        'spa_event_date_from' => 'sanitize_text_field',
-        'spa_event_date_to' => 'sanitize_text_field',
-        'spa_event_time_from' => 'sanitize_text_field',
-        'spa_event_time_to' => 'sanitize_text_field',
-        'spa_event_recurring' => 'sanitize_text_field'
-    ];
-    
-    foreach ($fields as $key => $sanitize) {
-        if (isset($_POST[$key])) {
-            $value = ($sanitize === 'intval') ? intval($_POST[$key]) : sanitize_text_field($_POST[$key]);
-            update_post_meta($post_id, $key, $value);
+    function spa_save_event_meta($post_id, $post) {
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+        if (!isset($_POST['spa_event_nonce']) || !wp_verify_nonce($_POST['spa_event_nonce'], 'spa_save_event')) return;
+        if (!current_user_can('edit_post', $post_id)) return;
+        
+        // Základné polia
+        $fields = [
+            'spa_event_type' => 'sanitize_text_field',
+            'spa_event_date_from' => 'sanitize_text_field',
+            'spa_event_date_to' => 'sanitize_text_field',
+            'spa_event_time_from' => 'sanitize_text_field',
+            'spa_event_time_to' => 'sanitize_text_field',
+            'spa_event_recurring' => 'sanitize_text_field'
+        ];
+        
+        foreach ($fields as $key => $sanitize) {
+            if (isset($_POST[$key])) {
+                $value = sanitize_text_field($_POST[$key]);
+                update_post_meta($post_id, $key, $value);
+            }
         }
+        
+        // All day checkbox
+        update_post_meta($post_id, 'spa_event_all_day', isset($_POST['spa_event_all_day']) ? 1 : 0);
+        
+        // VÄZBY (arrays)
+        $program_ids = isset($_POST['spa_event_program_ids']) && is_array($_POST['spa_event_program_ids']) 
+            ? array_map('intval', $_POST['spa_event_program_ids']) 
+            : [];
+        update_post_meta($post_id, 'spa_event_program_ids', $program_ids);
+        
+        $place_ids = isset($_POST['spa_event_place_ids']) && is_array($_POST['spa_event_place_ids']) 
+            ? array_map('intval', $_POST['spa_event_place_ids']) 
+            : [];
+        update_post_meta($post_id, 'spa_event_place_ids', $place_ids);
     }
-    
-    update_post_meta($post_id, 'spa_event_all_day', isset($_POST['spa_event_all_day']) ? 1 : 0);
-}
 
 // DOCHÁDZKA (spa_attendance)
 add_action('save_post_spa_attendance', 'spa_save_attendance_meta', 10, 2);
