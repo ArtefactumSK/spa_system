@@ -170,10 +170,17 @@ function spa_group_column_content($column, $post_id) {
         case 'grp_age':
             $age_from = get_post_meta($post_id, 'spa_age_from', true);
             $age_to = get_post_meta($post_id, 'spa_age_to', true);
+            $age_from = is_numeric($age_from) ? (int) $age_from : null;
+            $age_to   = is_numeric($age_to) ? (int) $age_to : null;
+
             if ($age_from && $age_to) {
-                echo esc_html($age_from . '-' . $age_to);
+                echo $age_from . '–' . $age_to;
+            } elseif ($age_from && !$age_to) {
+                echo $age_from . '+';
+            } elseif (!$age_from && $age_to) {
+                echo '-' . $age_to;
             } else {
-                echo '-';
+                echo '—';
             }
             break;
         
