@@ -883,9 +883,9 @@ function spa_event_meta_box($post) {
                 <select name="spa_event_recurring" id="spa_event_recurring">
                     <option value="once" <?php selected($recurring, 'once'); ?>>Jednorazovo</option>
                     <option value="weekly" <?php selected($recurring, 'weekly'); ?>>Každý týždeň</option>
-                    <option value="yearly" <?php selected($recurring, 'yearly'); ?>>Každý rok (napr. vianočné sviatky)</option>
+                    <option value="yearly" <?php selected($recurring, 'yearly'); ?>>Každý rok</option>
                 </select>
-                <p class="spa-help">Použite pre pravidelné udalosti (napr. letné prázdniny každý rok).</p>
+                <p class="spa-help">Použite pre pravidelné udalosti (napr. letné prázdniny, Vianoce každý rok).</p>
             </div>
         </div>
     </div>

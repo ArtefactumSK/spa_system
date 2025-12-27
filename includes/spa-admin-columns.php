@@ -357,7 +357,7 @@ function spa_event_column_content($column, $post_id) {
         case 'type':
             $type = get_post_meta($post_id, 'spa_event_type', true);
             $types = array(
-                'block' => '🚫 Blokovanie',
+                'block' => '🚫 Zatvorené',
                 'event' => '🎉 Udalosť',
                 'competition' => '🏆 Súťaž',
                 'holiday' => '🎄 Sviatok'
