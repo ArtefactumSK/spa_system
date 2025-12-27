@@ -9,15 +9,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// PROGRAMY - CASOVY ROZSAH
-add_meta_box(
-    'spa_program_timeframe',
-    '🕘 Časový rozsah programu',
-    'spa_program_timeframe_callback',
-    'spa_group',
-    'side',
-    'default'
-);
 
 /* ============================================================
    PRIDANIE VŠETKÝCH META BOXOV
@@ -52,6 +43,15 @@ function spa_add_all_meta_boxes() {
         'spa_place',
         'normal',
         'high'
+    );
+    // PROGRAMY - CASOVY ROZSAH
+    add_meta_box(
+        'spa_program_timeframe',
+        '🕘 Časový rozsah programu',
+        'spa_program_timeframe_callback',
+        'spa_group',
+        'side',
+        'default'
     );
 }
 
